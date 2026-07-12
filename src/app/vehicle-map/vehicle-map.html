@@ -1,0 +1,77 @@
+<div #mapEl class="map-host"></div>
+
+@if (selected(); as vehicle) {
+  <aside class="course-panel">
+    <header>
+      <strong>
+        @if (vehicle.journey; as journey) {
+          <img
+            class="line-icon"
+            height="14"
+            alt=""
+            [src]="'https://cloud.geofox.de/icon/line?height=50&lineKey=' + journey.geofoxLineId"
+          />
+          @if (journey.destination) {
+            <span>→ {{ journey.destination }}</span>
+          }
+        } @else {
+          Fahrzeug
+        }
+      </strong>
+      <button type="button" class="close" (click)="clearCourse()">×</button>
+    </header>
+
+    <dl class="vehicle-info">
+      <dt>Fahrzeug</dt>
+      <dd>{{ vehicle.id }}</dd>
+      <dt>Position</dt>
+      <dd>{{ kindLabel(vehicle.kind) }}</dd>
+      @if (vehicle.occupancy; as occupancy) {
+        <dt>Typ</dt>
+        <dd>{{ occupancy.vehicleType }} ({{ occupancy.vehicleModel }})</dd>
+        <dt>Auslastung</dt>
+        <dd>
+          <span class="dot" [style.background]="OCCUPANCY_COLOR[occupancy.level]"></span>
+          {{ OCCUPANCY_LABEL[occupancy.level] ?? occupancy.level }} ({{ occupancy.count
+          }}{{ occupancy.predicted ? ', prognostiziert' : '' }})
+        </dd>
+      }
+      @if (!!vehicle.speed) {
+        <dt>Tempo</dt>
+        <dd>{{ roundedSpeed(vehicle) }} km/h</dd>
+      }
+      <dt>Stand</dt>
+      <dd>{{ receivedTime(vehicle) }}</dd>
+    </dl>
+
+    @if (courseLoading()) {
+      <p class="note">Fahrtverlauf wird geladen …</p>
+    } @else if (courseError()) {
+      <p class="note error">{{ courseError() }}</p>
+    } @else if (course(); as c) {
+      <ol>
+        @for (stop of c.stops; track $index) {
+          <li [class.cancelled]="stop.cancelled">
+            <span class="time">
+              {{ stopTime(stop) }}
+              @if (stopDelay(stop); as delay) {
+                <em class="delay">{{ delay }}</em>
+              }
+            </span>
+            <span class="name">
+              {{ stop.name }}
+              @if (stop.platform) {
+                <small>{{ stop.platform }}</small>
+              }
+              @if (stop.cancelled) {
+                <small class="cancel-note">entfällt</small>
+              } @else if (stop.extra) {
+                <small>Zusatzhalt</small>
+              }
+            </span>
+          </li>
+        }
+      </ol>
+    }
+  </aside>
+}

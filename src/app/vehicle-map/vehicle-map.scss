@@ -1,0 +1,126 @@
+:host {
+  display: block;
+}
+
+.map-host {
+  position: absolute;
+  inset: 0;
+}
+
+.course-panel {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  max-height: calc(100% - 24px);
+  z-index: 1000;
+  width: min(320px, calc(100% - 24px));
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+  font-size: 13px;
+  overflow: hidden;
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid #e2e2e2;
+
+    strong {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+  }
+
+  .line-icon {
+    flex-shrink: 0;
+  }
+
+  .close {
+    border: none;
+    background: none;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    color: #666;
+  }
+
+  ol {
+    margin: 0;
+    padding: 8px 0;
+    list-style: none;
+    overflow-y: auto;
+  }
+
+  li {
+    display: flex;
+    gap: 10px;
+    padding: 3px 12px;
+
+    &.cancelled .name {
+      text-decoration: line-through;
+      color: #a33;
+    }
+  }
+
+  .time {
+    flex: 0 0 62px;
+    font-variant-numeric: tabular-nums;
+    color: #444;
+  }
+
+  .delay {
+    color: #c00;
+    font-style: normal;
+  }
+
+  .name small {
+    color: #777;
+    margin-left: 6px;
+  }
+
+  .cancel-note {
+    color: #a33;
+  }
+}
+
+.vehicle-info {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 12px;
+  margin: 0;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e2e2e2;
+
+  dt {
+    color: #777;
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    margin-right: 3px;
+  }
+}
+
+.note {
+  margin: 8px 12px;
+  color: #555;
+
+  &.error {
+    color: #a33;
+  }
+}

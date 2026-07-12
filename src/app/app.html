@@ -1,0 +1,38 @@
+<header class="topbar">
+  <h1>öpnv.hamburg</h1>
+
+  <span class="status">
+    <span
+      class="dot"
+      [class.ok]="live.socketConnected() && live.mqttConnected()"
+      [class.warn]="live.socketConnected() && !live.mqttConnected()"
+    ></span>
+    @if (!live.socketConnected()) {
+      Verbinde …
+    } @else if (!live.mqttConnected()) {
+      Server ohne MQTT-Verbindung
+    } @else {
+      {{ live.vehicleCount() }} Fahrzeuge live
+    }
+  </span>
+
+  <nav class="legend" aria-label="Fahrzeugtypen">
+    @for (item of legend(); track item.type) {
+      <button
+        type="button"
+        class="chip"
+        [class.off]="item.hidden"
+        [attr.aria-pressed]="!item.hidden"
+        (click)="live.toggleType(item.type)"
+      >
+        <span class="swatch" [style.background]="item.color"></span>
+        {{ item.label }}
+        <span class="count">{{ item.count }}</span>
+      </button>
+    }
+  </nav>
+</header>
+
+<main class="map-area">
+  <app-vehicle-map />
+</main>
