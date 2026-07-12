@@ -16,7 +16,11 @@ try {
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
-const angularApp = new AngularNodeAppEngine();
+const angularApp = new AngularNodeAppEngine({
+  allowedHosts: process.env['ALLOWED_HOSTS']?.split(',')
+    .map((host) => host.trim())
+    .filter(Boolean),
+});
 
 app.get('/api/course/:vehicleId', (req, res) => {
   void getRelay().serveCourse(req.params.vehicleId, res);
