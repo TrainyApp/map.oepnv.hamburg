@@ -3,8 +3,8 @@ import { LineListEntry } from './types/geofox/LLResponse';
 import { MosaicDeparture, MosaicDeparturesResponse, StationDeparture } from './types/mosaic';
 
 const STATIONS = [
-  'de:02000:63900', // Farmsen,
-  'de:02000:65900', // Berne,
+  'de:02000:63900', // Farmsen
+  'de:02000:65900', // Berne
   'Master:9910950', // Hauptbahnhof
   'de:02000:80953', // Altona
   'de:02000:60902', // Wandsbek Markt
