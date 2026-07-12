@@ -1,5 +1,5 @@
 FROM node:26-alpine AS build
-RUN corepack enable
+RUN npm install -g pnpm@10.14.0
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
