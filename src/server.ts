@@ -23,6 +23,15 @@ const angularApp = new AngularNodeAppEngine({
   trustProxyHeaders: true,
 });
 
+app.get('/health', (_, res) => {
+  const status = getRelay().status();
+  res.status(status.mqttConnected ? 200 : 503).json({
+    status: status.mqttConnected ? 'ok' : 'degraded',
+    ...status,
+    uptime: Math.round(process.uptime()),
+  });
+});
+
 app.get('/api/course/:vehicleId', (req, res) => {
   void getRelay().serveCourse(req.params.vehicleId, res);
 });

@@ -369,7 +369,7 @@ class MosaicRelay {
     this.io.emit(EV_UPDATE, updates);
   }
 
-  private status(): RelayStatus {
+  status(): RelayStatus {
     return { mqttConnected: this.mqttConnected, vehicleCount: this.vehicles.size };
   }
 }
