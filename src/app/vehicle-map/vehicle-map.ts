@@ -60,7 +60,8 @@ export class VehicleMap implements OnDestroy {
   }
 
   private async init(): Promise<void> {
-    const L = (this.L = await import('leaflet'));
+    const mod: typeof Leaflet & { default?: typeof Leaflet } = await import('leaflet');
+    const L = (this.L = mod.default ?? mod);
     const map = (this.map = L.map(this.mapEl().nativeElement, {
       center: HAMBURG_CENTER,
       zoom: 12,
