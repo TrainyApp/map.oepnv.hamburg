@@ -20,6 +20,7 @@ const angularApp = new AngularNodeAppEngine({
   allowedHosts: process.env['ALLOWED_HOSTS']?.split(',')
     .map((host) => host.trim())
     .filter(Boolean),
+  trustProxyHeaders: true,
 });
 
 app.get('/api/course/:vehicleId', (req, res) => {
