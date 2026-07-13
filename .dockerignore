@@ -3,7 +3,6 @@
 .vscode
 .angular
 node_modules
-dist
 .env
 *.md
 Dockerfile
