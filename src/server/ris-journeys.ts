@@ -1,15 +1,40 @@
 import { CourseStop, JourneyCourse, LiveVehicle } from '../shared/vehicle-types';
 import { journeyEventBasedById } from './gen/ris-journeys';
 import type { JourneyEvent } from './gen/ris-journeys';
+import { cacheGet, cacheSet } from './redis-cache';
 import { GeoJsonFeatureCollection } from './types/ris';
 
 const POLYLINE_CACHE_MS = 6 * 60 * 60_000;
 const polylineCache = new Map<string, { at: number; path: [number, number][] }>();
 
+function redisKey(journeyID: string): string {
+  return `polyline:${journeyID}`;
+}
+
+async function polylineFromRedis(journeyID: string): Promise<[number, number][] | undefined> {
+  const stored = await cacheGet(redisKey(journeyID));
+  if (!stored) {
+    return undefined;
+  }
+
+  try {
+    const path = JSON.parse(stored) as [number, number][];
+    return Array.isArray(path) && path.length > 0 ? path : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 async function fetchPolyline(journeyID: string): Promise<[number, number][]> {
   const cached = polylineCache.get(journeyID);
   if (cached) {
     return cached.path;
+  }
+
+  const fromRedis = await polylineFromRedis(journeyID);
+  if (fromRedis) {
+    polylineCache.set(journeyID, { at: Date.now(), path: fromRedis });
+    return fromRedis;
   }
 
   const response = await fetch(`https://rbc.trainy.app/debug/polyline/de/${journeyID}`);
@@ -41,6 +66,10 @@ async function fetchPolyline(journeyID: string): Promise<[number, number][]> {
   }
 
   polylineCache.set(journeyID, { at: now, path });
+  if (path.length > 0) {
+    void cacheSet(redisKey(journeyID), POLYLINE_CACHE_MS / 1000, JSON.stringify(path));
+  }
+
   return path;
 }
 
