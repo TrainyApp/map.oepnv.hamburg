@@ -1,19 +1,10 @@
-FROM node:26-alpine AS build
-RUN npm install -g pnpm@10.14.0
-WORKDIR /app
+FROM node:23-alpine
+WORKDIR /usr/app
 
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+COPY /dist/app /usr/app/dist/app
 
-COPY . .
-RUN pnpm run build
+ENV PORT=80
 
-FROM node:26-alpine
-WORKDIR /app
-ENV NODE_ENV=production
+CMD ["node", "dist/app/server/server.mjs"]
 
-COPY --from=build /app/dist/map.oepnv.hamburg ./dist/map.oepnv.hamburg
-
-USER node
-EXPOSE 4000
-CMD ["node", "dist/map.oepnv.hamburg/server/server.mjs"]
+EXPOSE 80
