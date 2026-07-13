@@ -1,9 +1,32 @@
 <div #mapEl class="map-host"></div>
 
+<div class="map-tools" aria-label="Kartenwerkzeuge">
+  <div class="map-action-group">
+    <button
+      type="button"
+      title="Hamburg zentrieren"
+      aria-label="Hamburg zentrieren"
+      (click)="centerHamburg()"
+    >
+      ◎
+    </button>
+    <button
+      type="button"
+      title="Eigenen Standort anzeigen"
+      aria-label="Eigenen Standort anzeigen"
+      (click)="locateUser()"
+    >
+      ⌖
+    </button>
+  </div>
+</div>
+
+<p class="visually-hidden" role="status" aria-live="polite">{{ locationMessage() }}</p>
+
 @if (selected(); as vehicle) {
-  <aside class="course-panel">
-    <header>
-      <strong>
+  <aside class="course-panel" role="dialog" aria-labelledby="course-title">
+    <header class="course-header">
+      <div class="course-heading">
         @if (vehicle.journey; as journey) {
           <img
             class="line-icon"
@@ -11,43 +34,79 @@
             alt=""
             [src]="'https://cloud.geofox.de/icon/line?height=50&lineKey=' + journey.geofoxLineId"
           />
-          @if (journey.destination) {
-            <span>→ {{ journey.destination }}</span>
-          }
+          <div>
+            <h2 id="course-title">
+              {{ journey.destination ? 'Richtung ' + journey.destination : 'Fahrtdetails' }}
+            </h2>
+          </div>
         } @else {
-          Fahrzeug
+          <h2 id="course-title">Fahrzeug</h2>
         }
-      </strong>
-      <button type="button" class="close" (click)="clearCourse()">×</button>
+      </div>
+      <button
+        type="button"
+        class="close"
+        aria-label="Fahrtdetails schließen"
+        (click)="clearCourse()"
+      >
+        ×
+      </button>
     </header>
 
     <dl class="vehicle-info">
-      <dt>Fahrzeug</dt>
-      <dd>{{ vehicle.id }}</dd>
-      <dt>Position</dt>
-      <dd>{{ kindLabel(vehicle.kind) }}</dd>
+      <div>
+        <dt>Position</dt>
+        <dd>{{ kindLabel(vehicle.kind) }}</dd>
+      </div>
+      <div>
+        <dt>Stand</dt>
+        <dd>{{ receivedTime(vehicle) }}</dd>
+      </div>
       @if (vehicle.occupancy; as occupancy) {
-        <dt>Typ</dt>
-        <dd>{{ occupancy.vehicleType }} ({{ occupancy.vehicleModel }})</dd>
-        <dt>Auslastung</dt>
-        <dd>
-          <span class="dot" [style.background]="OCCUPANCY_COLOR[occupancy.level]"></span>
-          {{ OCCUPANCY_LABEL[occupancy.level] ?? occupancy.level }} ({{ occupancy.count
-          }}{{ occupancy.predicted ? ', prognostiziert' : '' }})
-        </dd>
+        <div>
+          <dt>Auslastung</dt>
+          <dd>
+            <span
+              class="dot"
+              [style.background]="OCCUPANCY_COLOR[occupancy.level]"
+              aria-hidden="true"
+            ></span>
+            {{ OCCUPANCY_LABEL[occupancy.level] ?? occupancy.level }} ({{ occupancy.count
+            }}{{ occupancy.predicted ? ', prognostiziert' : '' }})
+          </dd>
+        </div>
       }
       @if (!!vehicle.speed) {
-        <dt>Tempo</dt>
-        <dd>{{ roundedSpeed(vehicle) }} km/h</dd>
+        <div>
+          <dt>Tempo</dt>
+          <dd>{{ roundedSpeed(vehicle) }} km/h</dd>
+        </div>
       }
-      <dt>Stand</dt>
-      <dd>{{ receivedTime(vehicle) }}</dd>
     </dl>
 
+    <details class="technical-info">
+      <summary>Fahrzeugdetails</summary>
+      <dl>
+        <dt>ID</dt>
+        <dd>{{ vehicle.id }}</dd>
+        @if (vehicle.occupancy; as occupancy) {
+          <dt>Typ</dt>
+          <dd>{{ occupancy.vehicleType }} ({{ occupancy.vehicleModel }})</dd>
+        }
+      </dl>
+    </details>
+
     @if (courseLoading()) {
-      <p class="note">Fahrtverlauf wird geladen …</p>
+      <div class="course-loading" role="status" aria-live="polite">
+        <span>Fahrtverlauf wird geladen …</span>
+        <i></i><i></i><i></i>
+      </div>
     } @else if (courseError()) {
-      <p class="note error">{{ courseError() }}</p>
+      <div class="note error" role="alert">
+        <strong>Fahrtverlauf nicht verfügbar</strong>
+        <span>{{ courseError() }}</span>
+        <button type="button" (click)="retryCourse()">Erneut versuchen</button>
+      </div>
     } @else if (course(); as c) {
       <ol>
         @for (stop of c.stops; track $index) {

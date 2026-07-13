@@ -1,7 +1,7 @@
 <header class="topbar">
-  <img src="logo.svg" alt="Logo" class="logo">
+  <img src="logo.svg" alt="öpnv.hamburg" class="logo" />
 
-  <span class="status">
+  <span class="status" role="status" aria-live="polite">
     <span
       class="dot"
       [class.ok]="live.socketConnected() && live.mqttConnected()"
@@ -16,7 +16,20 @@
     }
   </span>
 
-  <nav class="legend" aria-label="Fahrzeugtypen">
+  <button
+    type="button"
+    class="filter-toggle"
+    [attr.aria-expanded]="filtersOpen()"
+    aria-controls="vehicle-filters"
+    (click)="toggleFilters()"
+  >
+    Filter
+    @if (live.hiddenTypes().size > 0) {
+      <span class="filter-count">{{ live.hiddenTypes().size }}</span>
+    }
+  </button>
+
+  <nav id="vehicle-filters" class="legend" [class.open]="filtersOpen()" aria-label="Fahrzeugtypen">
     @for (item of legend(); track item.type) {
       <button
         type="button"
@@ -25,7 +38,7 @@
         [attr.aria-pressed]="!item.hidden"
         (click)="live.toggleType(item.type)"
       >
-        <span class="swatch" [style.background]="item.color"></span>
+        <span class="swatch" [style.background]="item.color" aria-hidden="true"></span>
         {{ item.label }}
         <span class="count">{{ item.count }}</span>
       </button>

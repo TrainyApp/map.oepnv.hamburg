@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { LiveVehiclesService } from './live-vehicles.service';
 import { VehicleMap } from './vehicle-map/vehicle-map';
 import { CATEGORY_ORDER, colorForType, labelForCategory } from './vehicle-palette';
@@ -11,6 +11,7 @@ import { CATEGORY_ORDER, colorForType, labelForCategory } from './vehicle-palett
 })
 export class App {
   protected readonly live = inject(LiveVehiclesService);
+  protected readonly filtersOpen = signal(false);
 
   protected readonly legend = computed(() => {
     const hidden = this.live.hiddenTypes();
@@ -29,4 +30,8 @@ export class App {
         hidden: hidden.has(type),
       }));
   });
+
+  protected toggleFilters(): void {
+    this.filtersOpen.update((open) => !open);
+  }
 }

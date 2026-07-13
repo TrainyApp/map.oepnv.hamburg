@@ -5,13 +5,14 @@
 }
 
 .logo {
-  width: 15.5rem;
+  width: 12.5rem;
+  max-height: 2.25rem;
 }
 
 .topbar {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
   flex-wrap: wrap;
   padding: 0.5rem 1rem;
   background: #fcfcfb;
@@ -25,6 +26,10 @@
     font-weight: 700;
     color: #0b0b0b;
   }
+}
+
+.filter-toggle {
+  display: none;
 }
 
 .status {
@@ -99,4 +104,76 @@
   position: relative;
   flex: 1;
   min-height: 0;
+}
+
+@media (max-width: 760px) {
+  .topbar {
+    gap: 0.5rem;
+    padding: 0.45rem 0.65rem;
+  }
+
+  .logo {
+    width: 9.5rem;
+    max-width: 42vw;
+  }
+
+  .status {
+    margin-left: auto;
+    font-size: 0.78rem;
+  }
+
+  .filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 2rem;
+    padding: 0.25rem 0.65rem;
+    border: 1px solid #d7d6d1;
+    border-radius: 999px;
+    background: #fff;
+    color: #222;
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  .filter-count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.15rem;
+    height: 1.15rem;
+    padding: 0 0.2rem;
+    border-radius: 999px;
+    background: #222;
+    color: #fff;
+    font-size: 0.7rem;
+  }
+
+  .legend {
+    display: none;
+    order: 10;
+    width: 100%;
+    margin-left: 0;
+    padding-top: 0.25rem;
+
+    &.open {
+      display: flex;
+    }
+  }
+
+  .chip {
+    min-height: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .status {
+    order: 3;
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .filter-toggle {
+    margin-left: auto;
+  }
 }

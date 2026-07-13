@@ -39,6 +39,8 @@ export class VehicleMap implements OnDestroy {
   private vehicleRenderer: Leaflet.Renderer | undefined;
   private lineRenderer: Leaflet.Renderer | undefined;
   private readonly markers = new Map<string, MarkerEntry>();
+  private selectedMarkerId: string | undefined;
+  private locationMarker: Leaflet.CircleMarker | undefined;
   private courseLayer: Leaflet.LayerGroup | undefined;
   private courseRequest = 0;
 
@@ -46,6 +48,7 @@ export class VehicleMap implements OnDestroy {
   protected readonly course = signal<JourneyCourse | null>(null);
   protected readonly courseLoading = signal(false);
   protected readonly courseError = signal<string | null>(null);
+  protected readonly locationMessage = signal('');
 
   protected readonly OCCUPANCY_COLOR = OCCUPANCY_COLOR;
   protected readonly OCCUPANCY_LABEL = OCCUPANCY_LABEL;
@@ -114,6 +117,10 @@ export class VehicleMap implements OnDestroy {
 
     const selectedId = this.selected()?.id;
     if (selectedId) {
+      if (change.removals.includes(selectedId)) {
+        this.clearCourse();
+        return;
+      }
       const updated = change.upserts.find((v) => v.id === selectedId);
       if (updated) {
         this.selected.set(updated);
@@ -138,6 +145,11 @@ export class VehicleMap implements OnDestroy {
 
       const id = vehicle.id;
       marker.on('click', () => void this.select(id));
+      marker.bindTooltip(this.markerLabel(vehicle), {
+        direction: 'top',
+        offset: [0, -5],
+        className: 'vehicle-tooltip',
+      });
       entry = { marker, type, visible: false };
       this.markers.set(vehicle.id, entry);
     } else {
@@ -146,15 +158,24 @@ export class VehicleMap implements OnDestroy {
         entry.type = type;
         entry.marker.setStyle({ fillColor: colorForType(type) });
       }
+      entry.marker.setTooltipContent(this.markerLabel(vehicle));
     }
 
-    this.setVisible(entry, !this.service.hiddenTypes().has(entry.type));
+    this.setVisible(
+      entry,
+      vehicle.id === this.selectedMarkerId || !this.service.hiddenTypes().has(entry.type),
+    );
   }
 
   private async select(vehicleId: string): Promise<void> {
-    const request = ++this.courseRequest;
     this.clearCourse();
+    const request = ++this.courseRequest;
     this.selected.set(this.service.vehicles.get(vehicleId) ?? null);
+    this.setSelectedMarker(vehicleId);
+    const marker = this.markers.get(vehicleId)?.marker;
+    if (marker && this.map) {
+      this.map.panTo(marker.getLatLng(), { animate: true, duration: 0.35 });
+    }
     this.courseLoading.set(true);
 
     try {
@@ -213,12 +234,54 @@ export class VehicleMap implements OnDestroy {
   }
 
   protected clearCourse(): void {
+    this.courseRequest++;
     this.courseLayer?.remove();
     this.courseLayer = undefined;
     this.selected.set(null);
     this.course.set(null);
     this.courseError.set(null);
     this.courseLoading.set(false);
+    this.setSelectedMarker(undefined);
+  }
+
+  protected retryCourse(): void {
+    const vehicleId = this.selected()?.id;
+    if (vehicleId) void this.select(vehicleId);
+  }
+
+  protected centerHamburg(): void {
+    this.map?.flyTo(HAMBURG_CENTER, 12, { duration: 0.6 });
+    this.locationMessage.set('Karte auf Hamburg zentriert');
+  }
+
+  protected locateUser(): void {
+    if (!navigator.geolocation) {
+      this.locationMessage.set('Standortbestimmung wird nicht unterstützt');
+      return;
+    }
+
+    this.locationMessage.set('Standort wird bestimmt');
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        const latLng: Leaflet.LatLngExpression = [coords.latitude, coords.longitude];
+        this.map?.flyTo(latLng, 15, { duration: 0.6 });
+        if (this.L && this.map) {
+          this.locationMarker?.remove();
+          this.locationMarker = this.L.circleMarker(latLng, {
+            radius: 7,
+            weight: 3,
+            color: '#fff',
+            fillColor: '#1769e0',
+            fillOpacity: 1,
+          })
+            .bindTooltip('Dein Standort')
+            .addTo(this.map);
+        }
+        this.locationMessage.set('Eigener Standort angezeigt');
+      },
+      () => this.locationMessage.set('Standort konnte nicht bestimmt werden'),
+      { enableHighAccuracy: true, timeout: 10_000, maximumAge: 30_000 },
+    );
   }
 
   protected stopTime(stop: CourseStop): string {
@@ -248,8 +311,8 @@ export class VehicleMap implements OnDestroy {
 
   private applyVisibility(): void {
     const hidden = this.service.hiddenTypes();
-    for (const entry of this.markers.values()) {
-      this.setVisible(entry, !hidden.has(entry.type));
+    for (const [id, entry] of this.markers) {
+      this.setVisible(entry, id === this.selectedMarkerId || !hidden.has(entry.type));
     }
   }
 
@@ -261,6 +324,36 @@ export class VehicleMap implements OnDestroy {
     } else {
       entry.marker.remove();
     }
+  }
+
+  private setSelectedMarker(vehicleId: string | undefined): void {
+    if (this.selectedMarkerId) {
+      const previous = this.markers.get(this.selectedMarkerId);
+      if (previous) {
+        previous.marker.setRadius(5);
+        previous.marker.setStyle({ weight: 1.5, color: '#ffffff', fillOpacity: 0.9 });
+        this.setVisible(previous, !this.service.hiddenTypes().has(previous.type));
+      }
+    }
+
+    this.selectedMarkerId = vehicleId;
+    if (!vehicleId) return;
+
+    const selected = this.markers.get(vehicleId);
+    if (selected) {
+      this.setVisible(selected, true);
+      selected.marker.setRadius(7);
+      selected.marker.setStyle({ weight: 2.5, color: '#ffffff', fillOpacity: 1 });
+      selected.marker.bringToFront();
+    }
+  }
+
+  private markerLabel(vehicle: LiveVehicle): HTMLElement {
+    const label = document.createElement('span');
+    const line = vehicle.journey?.lineName;
+    const destination = vehicle.journey?.destination;
+    label.textContent = line ? `${line}${destination ? ` → ${destination}` : ''}` : 'Fahrzeug';
+    return label;
   }
 }
 
