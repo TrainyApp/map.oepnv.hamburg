@@ -11,8 +11,8 @@ import {
   LiveVehicle,
   RelayStatus,
 } from '../shared/vehicle-types';
-import { VehicleChange } from './types';
-import { categoryOf } from './vehicle-palette';
+import { LineOption, VehicleChange } from './types';
+import { categoryOf, categoryRank } from './vehicle-palette';
 
 @Injectable({ providedIn: 'root' })
 export class LiveVehiclesService {
@@ -30,6 +30,8 @@ export class LiveVehiclesService {
     Object.values(this.typeCounts()).reduce((sum, count) => sum + count, 0),
   );
   readonly hiddenTypes = signal<ReadonlySet<string>>(new Set());
+  readonly selectedLine = signal<string | null>(null);
+  readonly lines = signal<LineOption[]>([]);
 
   connect(): void {
     if (!isPlatformBrowser(this.platformId) || this.socket) {
@@ -79,6 +81,11 @@ export class LiveVehiclesService {
     return body;
   }
 
+  matchesLine(lineName: string | undefined): boolean {
+    const selected = this.selectedLine();
+    return !selected || lineName === selected;
+  }
+
   toggleType(type: string): void {
     const hidden = new Set(this.hiddenTypes());
     if (!hidden.delete(type)) {
@@ -90,12 +97,43 @@ export class LiveVehiclesService {
 
   private afterMutation(change: VehicleChange): void {
     const counts: Record<string, number> = {};
+    const lines = new Map<string, LineOption>();
+    const seenJourneys = new Set<string>();
+
     for (const vehicle of this.vehicles.values()) {
+      const journey = vehicle.journey;
+      const journeyKey = journey?.journeyId || vehicle.id;
+      if (seenJourneys.has(journeyKey)) {
+        continue;
+      }
+      seenJourneys.add(journeyKey);
+
       const category = categoryOf(vehicle);
       counts[category] = (counts[category] ?? 0) + 1;
+      if (journey?.lineName) {
+        const line = lines.get(journey.lineName);
+        if (line) {
+          line.count++;
+        } else {
+          lines.set(journey.lineName, {
+            name: journey.lineName,
+            category,
+            geofoxLineId: journey.geofoxLineId,
+            count: 1,
+          });
+        }
+      }
     }
 
     this.typeCounts.set(counts);
+    this.lines.set([...lines.values()].sort(compareLines));
     this.changes.next(change);
   }
+}
+
+function compareLines(a: LineOption, b: LineOption): number {
+  return (
+    categoryRank(a.category) - categoryRank(b.category) ||
+    a.name.localeCompare(b.name, 'de', { numeric: true })
+  );
 }

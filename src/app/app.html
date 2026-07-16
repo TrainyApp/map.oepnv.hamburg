@@ -24,26 +24,91 @@
     (click)="toggleFilters()"
   >
     Filter
-    @if (live.hiddenTypes().size > 0) {
-      <span class="filter-count">{{ live.hiddenTypes().size }}</span>
+    @if (activeFilterCount() > 0) {
+      <span class="filter-count">{{ activeFilterCount() }}</span>
     }
   </button>
 
-  <nav id="vehicle-filters" class="legend" [class.open]="filtersOpen()" aria-label="Fahrzeugtypen">
-    @for (item of legend(); track item.type) {
-      <button
-        type="button"
-        class="chip"
-        [class.off]="item.hidden"
-        [attr.aria-pressed]="!item.hidden"
-        (click)="live.toggleType(item.type)"
-      >
-        <span class="swatch" [style.background]="item.color" aria-hidden="true"></span>
-        {{ item.label }}
-        <span class="count">{{ item.count }}</span>
-      </button>
-    }
-  </nav>
+  <div id="vehicle-filters" class="filters" [class.open]="filtersOpen()">
+    <div class="line-search" role="search" (focusout)="onSearchFocusout($event)">
+      <input
+        type="text"
+        role="combobox"
+        placeholder="Linie suchen"
+        aria-label="Fahrzeuge nach Linie filtern, z. B. U3, S1 oder 25"
+        aria-autocomplete="list"
+        aria-controls="line-listbox"
+        [attr.aria-expanded]="lineListOpen()"
+        [attr.aria-activedescendant]="lineListOpen() ? 'line-option-' + activeLineIndex() : null"
+        autocomplete="off"
+        [value]="lineQuery()"
+        (input)="onLineQuery($event)"
+        (focus)="lineListOpen.set(true)"
+        (keydown)="onLineKeydown($event)"
+      />
+      @if (lineQuery() || live.selectedLine()) {
+        <button
+          type="button"
+          class="clear-search"
+          aria-label="Liniensuche zurücksetzen"
+          (click)="clearLineSearch()"
+        >
+          ×
+        </button>
+      }
+      @if (lineListOpen()) {
+        <div
+          class="line-options"
+          id="line-listbox"
+          role="listbox"
+          aria-label="Linien"
+          (mousedown)="$event.preventDefault()"
+        >
+          @for (line of lineSuggestions(); track line.name) {
+            <button
+              type="button"
+              class="line-option"
+              role="option"
+              [id]="'line-option-' + $index"
+              [attr.aria-selected]="line.name === live.selectedLine()"
+              [class.active]="$index === activeLineIndex()"
+              (mouseenter)="activeLineIndex.set($index)"
+              (click)="selectLine(line.name)"
+            >
+              <span class="line-icon-box">
+                <img
+                  class="line-icon"
+                  height="16"
+                  [alt]="line.name"
+                  [src]="'https://cloud.geofox.de/icon/line?height=50&lineKey=' + line.geofoxLineId"
+                />
+              </span>
+              <span class="line-label">{{ line.label }}</span>
+              <span class="line-count">{{ line.count }}</span>
+            </button>
+          } @empty {
+            <p class="no-results">Keine Linie gefunden</p>
+          }
+        </div>
+      }
+    </div>
+
+    <nav class="legend" aria-label="Fahrzeugtypen">
+      @for (item of legend(); track item.type) {
+        <button
+          type="button"
+          class="chip"
+          [class.off]="item.hidden"
+          [attr.aria-pressed]="!item.hidden"
+          (click)="live.toggleType(item.type)"
+        >
+          <span class="swatch" [style.background]="item.color" aria-hidden="true"></span>
+          {{ item.label }}
+          <span class="count">{{ item.count }}</span>
+        </button>
+      }
+    </nav>
+  </div>
 </header>
 
 <main class="map-area">

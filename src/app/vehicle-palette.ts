@@ -61,15 +61,24 @@ export function categoryOf(vehicle: LiveVehicle): string {
   return vehicle.journey?.category || UNKNOWN_TYPE;
 }
 
-export function getPolylineColor(vehicle: JourneyCourse): string {
-  const category = vehicle.category;
+export function categoryRank(category: string): number {
+  const index = CATEGORY_ORDER.indexOf(category);
+  return index === -1 ? CATEGORY_ORDER.length : index;
+}
+
+export function colorForLine(lineName: string, category: string): string {
   if (category === 'U') {
-    return UBAHN_COLORS[vehicle.lineName || ''] ?? CATEGORY_COLOR[category] ?? NEUTRAL;
-  } else if (category == 'S') {
-    return SBAHN_COLORS[vehicle.lineName || ''] ?? CATEGORY_COLOR[category] ?? NEUTRAL;
+    return UBAHN_COLORS[lineName] ?? CATEGORY_COLOR[category];
+  }
+  if (category === 'S') {
+    return SBAHN_COLORS[lineName] ?? CATEGORY_COLOR[category];
   }
 
   return CATEGORY_COLOR[category] ?? NEUTRAL;
+}
+
+export function getPolylineColor(vehicle: JourneyCourse): string {
+  return colorForLine(vehicle.lineName || '', vehicle.category);
 }
 
 export function colorForType(category: string): string {

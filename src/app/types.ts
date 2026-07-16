@@ -7,8 +7,16 @@ export interface VehicleChange {
   reset: boolean;
 }
 
+export interface LineOption {
+  name: string;
+  category: string;
+  geofoxLineId: string;
+  count: number;
+}
+
 export interface MarkerEntry {
   marker: Leaflet.CircleMarker;
   type: string;
+  lineName?: string;
   visible: boolean;
 }

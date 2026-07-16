@@ -58,6 +58,7 @@ export class VehicleMap implements OnDestroy {
     afterNextRender(() => void this.init());
     effect(() => {
       this.service.hiddenTypes();
+      this.service.selectedLine();
       this.applyVisibility();
     });
   }
@@ -150,10 +151,11 @@ export class VehicleMap implements OnDestroy {
         offset: [0, -5],
         className: 'vehicle-tooltip',
       });
-      entry = { marker, type, visible: false };
+      entry = { marker, type, lineName: vehicle.journey?.lineName, visible: false };
       this.markers.set(vehicle.id, entry);
     } else {
       entry.marker.setLatLng([vehicle.lat, vehicle.lon]);
+      entry.lineName = vehicle.journey?.lineName;
       if (entry.type !== type) {
         entry.type = type;
         entry.marker.setStyle({ fillColor: colorForType(type) });
@@ -161,10 +163,7 @@ export class VehicleMap implements OnDestroy {
       entry.marker.setTooltipContent(this.markerLabel(vehicle));
     }
 
-    this.setVisible(
-      entry,
-      vehicle.id === this.selectedMarkerId || !this.service.hiddenTypes().has(entry.type),
-    );
+    this.setVisible(entry, this.shouldShow(vehicle.id, entry));
   }
 
   private async select(vehicleId: string): Promise<void> {
@@ -310,10 +309,16 @@ export class VehicleMap implements OnDestroy {
   }
 
   private applyVisibility(): void {
-    const hidden = this.service.hiddenTypes();
     for (const [id, entry] of this.markers) {
-      this.setVisible(entry, id === this.selectedMarkerId || !hidden.has(entry.type));
+      this.setVisible(entry, this.shouldShow(id, entry));
     }
+  }
+
+  private shouldShow(id: string, entry: MarkerEntry): boolean {
+    return (
+      id === this.selectedMarkerId ||
+      (!this.service.hiddenTypes().has(entry.type) && this.service.matchesLine(entry.lineName))
+    );
   }
 
   private setVisible(entry: MarkerEntry, visible: boolean): void {
@@ -327,16 +332,18 @@ export class VehicleMap implements OnDestroy {
   }
 
   private setSelectedMarker(vehicleId: string | undefined): void {
-    if (this.selectedMarkerId) {
-      const previous = this.markers.get(this.selectedMarkerId);
+    const previousId = this.selectedMarkerId;
+    this.selectedMarkerId = vehicleId;
+
+    if (previousId) {
+      const previous = this.markers.get(previousId);
       if (previous) {
         previous.marker.setRadius(5);
         previous.marker.setStyle({ weight: 1.5, color: '#ffffff', fillOpacity: 0.9 });
-        this.setVisible(previous, !this.service.hiddenTypes().has(previous.type));
+        this.setVisible(previous, this.shouldShow(previousId, previous));
       }
     }
 
-    this.selectedMarkerId = vehicleId;
     if (!vehicleId) return;
 
     const selected = this.markers.get(vehicleId);
