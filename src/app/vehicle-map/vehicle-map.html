@@ -24,8 +24,28 @@
 <p class="visually-hidden" role="status" aria-live="polite">{{ locationMessage() }}</p>
 
 @if (selected(); as vehicle) {
-  <aside class="course-panel" role="dialog" aria-labelledby="course-title">
-    <header class="course-header">
+  <aside
+    class="course-panel"
+    role="dialog"
+    aria-labelledby="course-title"
+    [style.max-height.px]="sheetMaxHeight()"
+    [class.dragging]="sheetDragging()"
+  >
+    <div
+      class="sheet-handle"
+      aria-hidden="true"
+      (pointerdown)="onSheetDragStart($event)"
+      (pointermove)="onSheetDragMove($event)"
+      (pointerup)="onSheetDragEnd($event)"
+      (pointercancel)="onSheetDragEnd($event)"
+    ></div>
+    <header
+      class="course-header"
+      (pointerdown)="onSheetDragStart($event)"
+      (pointermove)="onSheetDragMove($event)"
+      (pointerup)="onSheetDragEnd($event)"
+      (pointercancel)="onSheetDragEnd($event)"
+    >
       <div class="course-heading">
         @if (vehicle.journey; as journey) {
           <img

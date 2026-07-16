@@ -62,6 +62,10 @@
   }
 }
 
+.sheet-handle {
+  display: none;
+}
+
 .course-panel {
   --panel-gutter: 14px;
   position: absolute;
@@ -443,6 +447,10 @@
   .course-loading i {
     animation: none;
   }
+
+  .course-panel {
+    transition: none !important;
+  }
 }
 
 @media (max-width: 760px) {
@@ -460,20 +468,36 @@
     max-height: min(68%, 560px);
     border-radius: 14px;
     box-shadow: 0 -3px 18px rgba(0, 0, 0, 0.24);
+    transition: max-height 0.25s ease;
+
+    &.dragging {
+      transition: none;
+    }
   }
 
-  .course-panel::before {
-    content: '';
-    align-self: center;
-    width: 38px;
-    height: 4px;
-    margin-top: 6px;
-    border-radius: 2px;
-    background: var(--hvv-gray-mid);
+  .sheet-handle {
+    display: block;
+    flex-shrink: 0;
+    padding: 7px 0 3px;
+    touch-action: none;
+    cursor: grab;
+
+    &::before {
+      content: '';
+      display: block;
+      width: 38px;
+      height: 4px;
+      margin: 0 auto;
+      border-radius: 2px;
+      background: var(--hvv-gray-mid);
+    }
   }
 
   .course-panel .course-header {
-    padding-top: 7px;
+    padding-top: 4px;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
   }
 }
 

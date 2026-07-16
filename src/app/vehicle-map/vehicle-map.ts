@@ -51,6 +51,21 @@ export class VehicleMap implements OnDestroy {
   protected readonly courseError = signal<string | null>(null);
   protected readonly locationMessage = signal('');
 
+  protected readonly sheetMaxHeight = signal<number | null>(null);
+  protected readonly sheetDragging = signal(false);
+  private sheetDrag: {
+    pointerId: number;
+    startY: number;
+    startHeight: number;
+    minHeight: number;
+  } | null = null;
+  private mobileQuery: MediaQueryList | undefined;
+  private readonly onMobileChange = (): void => {
+    if (this.mobileQuery && !this.mobileQuery.matches) {
+      this.sheetMaxHeight.set(null);
+    }
+  };
+
   protected readonly OCCUPANCY_COLOR = OCCUPANCY_COLOR;
   protected readonly OCCUPANCY_LABEL = OCCUPANCY_LABEL;
   protected readonly kindLabel = kindLabel;
@@ -131,7 +146,65 @@ export class VehicleMap implements OnDestroy {
 
   ngOnDestroy(): void {
     this.subscription?.unsubscribe();
+    this.mobileQuery?.removeEventListener('change', this.onMobileChange);
     this.map?.remove();
+  }
+
+  protected onSheetDragStart(event: PointerEvent): void {
+    if (!window.matchMedia('(max-width: 760px)').matches) return;
+    if ((event.target as HTMLElement).closest('button')) return;
+
+    const target = event.currentTarget as HTMLElement;
+    const panel = target.closest<HTMLElement>('.course-panel');
+    if (!panel) return;
+
+    if (!this.mobileQuery) {
+      this.mobileQuery = window.matchMedia('(max-width: 760px)');
+      this.mobileQuery.addEventListener('change', this.onMobileChange);
+    }
+
+    const header = panel.querySelector<HTMLElement>('.course-header');
+    const minHeight = header
+      ? Math.ceil(header.getBoundingClientRect().bottom - panel.getBoundingClientRect().top) + 2
+      : 90;
+
+    this.sheetDrag = {
+      pointerId: event.pointerId,
+      startY: event.clientY,
+      startHeight: panel.offsetHeight,
+      minHeight,
+    };
+    target.setPointerCapture(event.pointerId);
+    this.sheetDragging.set(true);
+  }
+
+  protected onSheetDragMove(event: PointerEvent): void {
+    const drag = this.sheetDrag;
+    if (!drag || event.pointerId !== drag.pointerId) return;
+
+    const height = drag.startHeight + (drag.startY - event.clientY);
+    this.sheetMaxHeight.set(Math.min(Math.max(height, drag.minHeight), window.innerHeight * 0.92));
+    event.preventDefault();
+  }
+
+  protected onSheetDragEnd(event: PointerEvent): void {
+    const drag = this.sheetDrag;
+    if (!drag || event.pointerId !== drag.pointerId) return;
+    this.sheetDrag = null;
+    this.sheetDragging.set(false);
+
+    const height = this.sheetMaxHeight();
+    if (height === null) return;
+
+    const viewport = window.innerHeight;
+    const snaps = [
+      drag.minHeight,
+      viewport * 0.35,
+      Math.min(viewport * 0.68, 560),
+      viewport * 0.92,
+    ];
+    const nearest = snaps.reduce((a, b) => (Math.abs(b - height) < Math.abs(a - height) ? b : a));
+    this.sheetMaxHeight.set(Math.round(nearest));
   }
 
   private onChange(change: VehicleChange): void {
