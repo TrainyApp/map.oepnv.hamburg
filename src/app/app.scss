@@ -15,8 +15,8 @@
   gap: 0.75rem;
   flex-wrap: wrap;
   padding: 0.5rem 1rem;
-  background: #fcfcfb;
-  border-bottom: 1px solid #e4e3df;
+  background: #ffffff;
+  border-bottom: 1px solid var(--hvv-border);
   position: relative;
   z-index: 1000;
 
@@ -24,7 +24,7 @@
     margin: 0;
     font-size: 1.1rem;
     font-weight: 700;
-    color: #0b0b0b;
+    color: var(--hvv-text);
   }
 }
 
@@ -37,7 +37,8 @@
   align-items: center;
   gap: 0.4rem;
   font-size: 0.85rem;
-  color: #52514e;
+  color: var(--hvv-gray);
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 
@@ -45,14 +46,14 @@
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: #d03b3b;
+  background: var(--hvv-red);
 
   &.ok {
-    background: #0ca30c;
+    background: var(--hvv-green);
   }
 
   &.warn {
-    background: #fab219;
+    background: var(--hvv-orange);
   }
 }
 
@@ -61,32 +62,40 @@
   align-items: center;
   gap: 0.6rem;
   flex-wrap: wrap;
-  margin-left: auto;
+  flex: 1;
   min-width: 0;
+  margin-left: 0.75rem;
 }
 
 .line-search {
   position: relative;
 
   input {
-    width: 9.5rem;
-    min-height: 1.75rem;
-    padding: 0.15rem 1.7rem 0.15rem 0.7rem;
-    border: 1px solid #e4e3df;
-    border-radius: 999px;
+    box-sizing: border-box;
+    width: 12rem;
+    height: 1.9rem;
+    padding: 0 1.7rem 0 0.65rem;
+    border: 1.5px solid var(--hvv-gray-mid);
+    border-radius: 25px;
     background: #ffffff;
     font: inherit;
     font-size: 0.8rem;
-    color: #0b0b0b;
+    font-weight: 500;
+    color: var(--hvv-text);
+    transition: box-shadow 0.1s ease;
+
+    &::placeholder {
+      color: var(--hvv-gray);
+      font-weight: 400;
+    }
 
     &:hover {
-      border-color: #b9b8b2;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
     }
 
     &:focus {
-      border-color: #b9b8b2;
-      outline: 2px solid #1769e0;
-      outline-offset: 1px;
+      outline: 2px solid var(--hvv-blue);
+      outline-offset: 2px;
     }
   }
 
@@ -102,31 +111,31 @@
     border: 0;
     border-radius: 50%;
     background: transparent;
-    color: #52514e;
+    color: var(--hvv-gray);
     font: inherit;
     font-size: 0.95rem;
     line-height: 1;
     cursor: pointer;
 
     &:hover {
-      background: #eeede9;
-      color: #0b0b0b;
+      background: var(--hvv-gray-light);
+      color: var(--hvv-text);
     }
   }
 
   .line-options {
     position: absolute;
     top: calc(100% + 0.35rem);
-    right: 0;
-    min-width: 100%;
-    width: 16rem;
+    left: 0;
+    box-sizing: border-box;
+    width: 100%;
     max-height: min(21rem, 55vh);
     overflow-y: auto;
     padding: 0.3rem;
     background: #ffffff;
-    border: 1px solid #e4e3df;
-    border-radius: 0.75rem;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.14);
+    border: 1px solid var(--hvv-border);
+    border-radius: var(--hvv-radius);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.14);
     z-index: 30;
   }
 
@@ -137,20 +146,20 @@
     width: 100%;
     padding: 0.35rem 0.5rem;
     border: 0;
-    border-radius: 0.5rem;
+    border-radius: 6px;
     background: transparent;
     font: inherit;
     font-size: 0.82rem;
-    color: #0b0b0b;
+    color: var(--hvv-text);
     text-align: left;
     cursor: pointer;
 
     &.active {
-      background: #f1f0ec;
+      background: var(--hvv-gray-light);
     }
 
     &[aria-selected='true'] {
-      background: #e8f0fb;
+      background: var(--hvv-blue-tint);
     }
   }
 
@@ -167,7 +176,7 @@
   }
 
   .line-label {
-    color: #52514e;
+    color: var(--hvv-gray);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -175,14 +184,14 @@
 
   .line-count {
     margin-left: auto;
-    color: #52514e;
+    color: var(--hvv-gray);
     font-variant-numeric: tabular-nums;
   }
 
   .no-results {
     margin: 0;
     padding: 0.5rem 0.6rem;
-    color: #52514e;
+    color: var(--hvv-gray);
     font-size: 0.82rem;
   }
 }
@@ -191,30 +200,47 @@
   display: flex;
   gap: 0.4rem;
   flex-wrap: wrap;
+  margin-left: auto;
 }
 
 .chip {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.2rem 0.6rem;
-  border: 1px solid #e4e3df;
-  border-radius: 999px;
+  height: 1.9rem;
+  padding: 0 0.65rem;
+  border: 1.5px solid var(--hvv-gray-mid);
+  border-radius: 25px;
   background: #ffffff;
   font: inherit;
   font-size: 0.8rem;
-  color: #0b0b0b;
+  font-weight: 700;
+  letter-spacing: 0.02rem;
+  color: var(--hvv-text);
   cursor: pointer;
+  transition: box-shadow 0.1s ease;
 
   &:hover {
-    border-color: #b9b8b2;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    box-shadow:
+      0 0 12px rgba(0, 0, 0, 0.15),
+      inset 0 0 8px rgba(20, 85, 235, 0.5);
   }
 
   &.off {
-    opacity: 0.45;
+    border-color: var(--hvv-border);
+    color: var(--hvv-gray);
 
     .swatch {
-      background: #b9b8b2 !important;
+      background: var(--hvv-gray-mid) !important;
+    }
+
+    .count {
+      color: var(--hvv-gray-mid);
     }
   }
 
@@ -225,7 +251,8 @@
   }
 
   .count {
-    color: #52514e;
+    color: var(--hvv-gray);
+    font-weight: 400;
     font-variant-numeric: tabular-nums;
   }
 }
@@ -253,18 +280,30 @@
   }
 
   .filter-toggle {
+    box-sizing: border-box;
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    min-height: 2rem;
-    padding: 0.25rem 0.65rem;
-    border: 1px solid #d7d6d1;
-    border-radius: 999px;
-    background: #fff;
-    color: #222;
+    height: 2rem;
+    padding: 0 0.85rem;
+    border: 1.5px solid var(--hvv-gray-mid);
+    border-radius: 25px;
+    background: #ffffff;
+    color: var(--hvv-text);
     font: inherit;
     font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.02rem;
     cursor: pointer;
+
+    &:active {
+      box-shadow: inset 0 0 8px rgba(20, 85, 235, 0.5);
+    }
+
+    &[aria-expanded='true'] {
+      background: var(--hvv-text);
+      color: #ffffff;
+    }
   }
 
   .filter-count {
@@ -274,9 +313,10 @@
     height: 1.15rem;
     padding: 0 0.2rem;
     border-radius: 999px;
-    background: #222;
-    color: #fff;
+    background: var(--hvv-red);
+    color: #ffffff;
     font-size: 0.7rem;
+    font-weight: 700;
   }
 
   .filters {
@@ -297,7 +337,7 @@
   .line-search {
     input {
       width: 100%;
-      min-height: 2.25rem;
+      height: 2rem;
       font-size: 1rem;
     }
 
@@ -308,8 +348,12 @@
     }
   }
 
+  .legend {
+    margin-left: 0;
+  }
+
   .chip {
-    min-height: 2rem;
+    height: 2rem;
   }
 }
 

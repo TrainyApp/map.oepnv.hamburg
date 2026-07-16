@@ -30,19 +30,31 @@
         @if (vehicle.journey; as journey) {
           <img
             class="line-icon"
-            height="14"
+            height="18"
             alt=""
             [src]="'https://cloud.geofox.de/icon/line?height=50&lineKey=' + journey.geofoxLineId"
           />
           <div>
-            <h2 id="course-title">
-              {{ journey.destination ? 'Richtung ' + journey.destination : 'Fahrtdetails' }}
-            </h2>
+            @if (journey.destination) {
+              <span class="eyebrow">Richtung</span>
+              <h2 id="course-title">{{ journey.destination }}</h2>
+            } @else {
+              <h2 id="course-title">Fahrtdetails</h2>
+            }
           </div>
         } @else {
           <h2 id="course-title">Fahrzeug</h2>
         }
       </div>
+      <button
+        type="button"
+        class="focus-vehicle"
+        title="Zum Fahrzeug springen"
+        aria-label="Zum Fahrzeug auf der Karte springen"
+        (click)="focusVehicle()"
+      >
+        ⌖
+      </button>
       <button
         type="button"
         class="close"
@@ -108,9 +120,14 @@
         <button type="button" (click)="retryCourse()">Erneut versuchen</button>
       </div>
     } @else if (course(); as c) {
+      <h3 class="section-title">Fahrtverlauf</h3>
       <ol>
         @for (stop of c.stops; track $index) {
-          <li [class.cancelled]="stop.cancelled">
+          <li
+            [class.cancelled]="stop.cancelled"
+            [class.reached]="isReached($index)"
+            [style.--line-fill]="lineFill($index, $last)"
+          >
             <span class="time">
               {{ stopTime(stop) }}
               @if (stopDelay(stop); as delay) {

@@ -19,6 +19,7 @@
     "@angular/platform-server": "^22.0.0",
     "@angular/router": "^22.0.0",
     "@angular/ssr": "^22.0.5",
+    "@fontsource-variable/archivo": "^5.2.8",
     "@turf/along": "^7.3.5",
     "@turf/helpers": "^7.3.5",
     "@turf/nearest-point-on-line": "^7.3.5",

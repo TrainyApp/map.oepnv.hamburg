@@ -37,6 +37,7 @@
             ],
             "styles": [
               "node_modules/leaflet/dist/leaflet.css",
+              "node_modules/@fontsource-variable/archivo/index.css",
               "src/styles.scss"
             ],
             "server": "src/main.server.ts",

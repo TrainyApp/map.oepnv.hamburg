@@ -3,6 +3,7 @@ import {
   ElementRef,
   OnDestroy,
   afterNextRender,
+  computed,
   effect,
   inject,
   signal,
@@ -53,6 +54,45 @@ export class VehicleMap implements OnDestroy {
   protected readonly OCCUPANCY_COLOR = OCCUPANCY_COLOR;
   protected readonly OCCUPANCY_LABEL = OCCUPANCY_LABEL;
   protected readonly kindLabel = kindLabel;
+
+  protected readonly progress = computed(() => {
+    const course = this.course();
+    const vehicle = this.selected();
+    if (!course || !vehicle) return null;
+    return courseProgress(course.stops, vehicle.lat, vehicle.lon);
+  });
+
+  protected isReached(index: number): boolean {
+    const p = this.progress();
+    return !p || index <= p.index;
+  }
+
+  protected lineFill(index: number, isLast: boolean): string {
+    const fill = this.stripFill(index);
+    const visible =
+      index === 0 ? Math.max(0, (fill - 50) * 2) : isLast ? Math.min(100, fill * 2) : fill;
+    return `${visible}%`;
+  }
+
+  private stripFill(index: number): number {
+    const p = this.progress();
+    if (!p) return 100;
+
+    const t = p.atStop ? 0 : p.fraction;
+    if (index < p.index) {
+      return 100;
+    }
+
+    if (index === p.index) {
+      return 50 + Math.min(t, 0.5) * 100;
+    }
+
+    if (index === p.index + 1) {
+      return Math.max(0, (t - 0.5) * 100);
+    }
+
+    return 0;
+  }
 
   constructor() {
     afterNextRender(() => void this.init());
@@ -248,6 +288,21 @@ export class VehicleMap implements OnDestroy {
     if (vehicleId) void this.select(vehicleId);
   }
 
+  protected focusVehicle(): void {
+    const vehicle = this.selected();
+    const marker = vehicle ? this.markers.get(vehicle.id)?.marker : undefined;
+    if (!marker || !this.map) return;
+
+    const latLng = marker.getLatLng();
+    const zoom = Math.max(this.map.getZoom(), 15);
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reducedMotion) {
+      this.map.setView(latLng, zoom, { animate: false });
+    } else {
+      this.map.flyTo(latLng, zoom, { duration: 0.6 });
+    }
+  }
+
   protected centerHamburg(): void {
     this.map?.flyTo(HAMBURG_CENTER, 12, { duration: 0.6 });
     this.locationMessage.set('Karte auf Hamburg zentriert');
@@ -270,7 +325,7 @@ export class VehicleMap implements OnDestroy {
             radius: 7,
             weight: 3,
             color: '#fff',
-            fillColor: '#1769e0',
+            fillColor: '#1455eb',
             fillOpacity: 1,
           })
             .bindTooltip('Dein Standort')
@@ -362,6 +417,63 @@ export class VehicleMap implements OnDestroy {
     label.textContent = line ? `${line}${destination ? ` → ${destination}` : ''}` : 'Fahrzeug';
     return label;
   }
+}
+
+interface CourseProgress {
+  index: number;
+  atStop: boolean;
+  fraction: number;
+}
+
+const AT_STOP_RADIUS_M = 5;
+
+function courseProgress(stops: CourseStop[], lat: number, lon: number): CourseProgress | null {
+  const kx = Math.cos((lat * Math.PI) / 180) * 111_320;
+  const ky = 111_320;
+  const located: { index: number; x: number; y: number }[] = [];
+  for (const [index, stop] of stops.entries()) {
+    if (stop.lat === undefined || stop.lon === undefined) continue;
+    located.push({ index, x: (stop.lon - lon) * kx, y: (stop.lat - lat) * ky });
+  }
+
+  if (located.length < 2) return null;
+
+  let nearest = 0;
+  for (let i = 1; i < located.length; i++) {
+    if (
+      Math.hypot(located[i].x, located[i].y) < Math.hypot(located[nearest].x, located[nearest].y)
+    ) {
+      nearest = i;
+    }
+  }
+
+  if (Math.hypot(located[nearest].x, located[nearest].y) <= AT_STOP_RADIUS_M) {
+    return { index: located[nearest].index, atStop: true, fraction: 0 };
+  }
+
+  const before = nearest > 0 ? project(located[nearest - 1], located[nearest]) : null;
+  const after =
+    nearest < located.length - 1 ? project(located[nearest], located[nearest + 1]) : null;
+  if (after && (!before || after.distance <= before.distance)) {
+    return { index: located[nearest].index, atStop: false, fraction: after.t };
+  }
+
+  if (before) {
+    return { index: located[nearest - 1].index, atStop: false, fraction: before.t };
+  }
+
+  return null;
+}
+
+function project(
+  a: { x: number; y: number },
+  b: { x: number; y: number },
+): { distance: number; t: number } {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const lengthSq = dx * dx + dy * dy;
+  const t = lengthSq === 0 ? 0 : Math.max(0, Math.min(1, -(a.x * dx + a.y * dy) / lengthSq));
+  return { distance: Math.hypot(a.x + t * dx, a.y + t * dy), t };
 }
 
 function kindLabel(kind: LiveVehicle['kind']): string {
