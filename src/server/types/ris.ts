@@ -19,6 +19,14 @@ export interface RisJourneyPosition {
   speed?: number;
 }
 
+export type StopPlacesByKeysResponse = Record<
+  string,
+  {
+    evaNumber?: string;
+    position?: { latitude?: number; longitude?: number };
+  }[]
+>;
+
 export interface GeoJsonFeatureCollection {
   features?: {
     geometry?: {

@@ -2,7 +2,7 @@ import { CourseStop, JourneyCourse, LiveVehicle } from '../shared/vehicle-types'
 import { journeyEventBasedById } from './gen/ris-journeys';
 import type { JourneyEvent } from './gen/ris-journeys';
 import { cacheGet, cacheSet } from './redis-cache';
-import { GeoJsonFeatureCollection } from './types/ris';
+import { GeoJsonFeatureCollection, StopPlacesByKeysResponse } from './types/ris';
 
 const POLYLINE_CACHE_MS = 6 * 60 * 60_000;
 const polylineCache = new Map<string, { at: number; path: [number, number][] }>();
@@ -73,6 +73,50 @@ async function fetchPolyline(journeyID: string): Promise<[number, number][]> {
   return path;
 }
 
+interface StopPlacePosition {
+  lat: number;
+  lon: number;
+}
+
+function risStationsUrl(): string {
+  return process.env['RIS_STATIONS_URL'] ?? 'https://de-stations.trainy.app';
+}
+
+async function fetchStopPlacePositions(
+  evaNumbers: string[],
+): Promise<Map<string, StopPlacePosition>> {
+  const evas = [...new Set(evaNumbers)].filter(Boolean);
+  if (evas.length === 0) {
+    return new Map();
+  }
+
+  const response = await fetch(`${risStationsUrl()}/ris-stations/v1/stop-places/by-keys`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/vnd.de.db.ris+json',
+      Accept: 'application/vnd.de.db.ris+json',
+    },
+    body: JSON.stringify({ keyType: 'EVA', keys: evas.map((key) => ({ key })) }),
+  });
+  if (!response.ok) {
+    throw new Error(`stop-places: HTTP ${response.status}`);
+  }
+
+  const body = (await response.json()) as StopPlacesByKeysResponse;
+  const result = new Map<string, StopPlacePosition>();
+  for (const [key, places] of Object.entries(body)) {
+    if (!Array.isArray(places)) continue;
+    const place = places[0];
+    const eva = place?.evaNumber ?? key;
+    const lat = place?.position?.latitude;
+    const lon = place?.position?.longitude;
+    if (!eva || lat === undefined || lon === undefined) continue;
+    result.set(eva, { lat, lon });
+  }
+
+  return result;
+}
+
 function delaySeconds(event: JourneyEvent): number | undefined {
   if (!event.time || !event.timeSchedule) {
     return undefined;
@@ -139,6 +183,19 @@ export async function fetchRisJourneyCourse(vehicle: LiveVehicle): Promise<Journ
   const stops = toStops(journey.events ?? []);
   if (stops.length === 0) {
     throw new Error('Kein Fahrtverlauf gefunden');
+  }
+
+  try {
+    const positions = await fetchStopPlacePositions(stops.map((stop) => stop.id));
+    for (const stop of stops) {
+      const position = positions.get(stop.id);
+      if (position) {
+        stop.lat = position.lat;
+        stop.lon = position.lon;
+      }
+    }
+  } catch (err) {
+    console.warn('ris-journeys: stop-places:', (err as Error).message);
   }
 
   return {
