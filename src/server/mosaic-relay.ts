@@ -29,7 +29,9 @@ const RIS_ADMINISTRATIONS = [
   '0S', // S-Bahn Hamburg
   'R1', // metronom
   '800201', // DB Regio N, Schleswig-Holstein (Netz Mitte)
+  '800292', // DB Regio N, VB Kiel - Netz E-Ost
   '800293', // DB Regio N, VB Kiel - Netz RB81
+  '800155', // DB Regio NO, Ostseeküste
   'RSUE', // Regionalverkehre Start Deutschland GmbH
   'O0', // Nordbahn Eisenbahngesellschaft
   '8002B5', // DB Regio N, Kiel (Netz West)
