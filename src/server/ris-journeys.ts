@@ -1,4 +1,4 @@
-import { CourseStop, JourneyCourse, LiveVehicle } from '../shared/vehicle-types';
+import { CourseStop, JourneyCourse, LiveVehicle, TimeType } from '../shared/vehicle-types';
 import { journeyEventBasedById } from './gen/ris-journeys';
 import type { JourneyEvent } from './gen/ris-journeys';
 import { cacheGet, cacheSet } from './redis-cache';
@@ -125,6 +125,19 @@ function delaySeconds(event: JourneyEvent): number | undefined {
   return Math.round((Date.parse(event.time) - Date.parse(event.timeSchedule)) / 1000) || undefined;
 }
 
+function toTimeType(type: string) {
+  switch (type) {
+    case 'REAL':
+      return TimeType.REPORTED;
+    case 'SCHEDULED':
+      return TimeType.SCHEDULED;
+    case 'PREVIEW':
+      return TimeType.ESTIMATED;
+    default:
+      throw new Error(`Unknown time type: ${type}`);
+  }
+}
+
 function toStops(events: JourneyEvent[]): CourseStop[] {
   const stops: CourseStop[] = [];
   let current: CourseStop | undefined;
@@ -140,9 +153,11 @@ function toStops(events: JourneyEvent[]): CourseStop[] {
     if (event.type === 'ARRIVAL') {
       current.arrTime = time;
       current.arrDelay = delaySeconds(event);
+      current.arrivalTimeType = toTimeType(event.timeType);
     } else {
       current.depTime = time;
       current.depDelay = delaySeconds(event);
+      current.departureTimeType = toTimeType(event.timeType);
     }
 
     current.platform = event.platform ?? event.platformSchedule ?? current.platform;

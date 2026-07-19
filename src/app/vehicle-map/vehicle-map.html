@@ -109,7 +109,8 @@
               [style.background]="OCCUPANCY_COLOR[occupancy.level]"
               aria-hidden="true"
             ></span>
-            {{ OCCUPANCY_LABEL[occupancy.level] ?? occupancy.level }} ({{ occupancy.count
+            {{ OCCUPANCY_LABEL[occupancy.level] ?? occupancy.level }} ({{
+              occupancy.count
             }}{{ occupancy.predicted ? ', prognostiziert' : '' }})
           </dd>
         </div>
@@ -154,7 +155,7 @@
             [class.reached]="isReached($index)"
             [style.--line-fill]="lineFill($index, $last)"
           >
-            <span class="time">
+            <span class="time {{stopTimeType(stop) == TimeType.REPORTED && 'bold'}}">
               {{ stopTime(stop) }}
               @if (stopDelay(stop); as delay) {
                 <em class="delay">{{ delay }}</em>

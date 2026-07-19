@@ -4,6 +4,7 @@ import { normalizeLineName } from './mosaic';
 import { GtiCourseElement, GtiResponse } from './types/geofox/gti';
 import { LineListEntry, LLResponse } from './types/geofox/LLResponse';
 import { StationDeparture } from './types/mosaic';
+import { TimeType } from '../shared/vehicle-types';
 
 const GTI_BASE_URL = 'https://gti.geofox.de/gti/public';
 const GTI_VERSION = 63;
@@ -55,6 +56,11 @@ function toGtiStationId(stationId: string): string {
   return match ? `Master:${match[1]}` : stationId;
 }
 
+function toTimeType(delay: number | undefined, scheduled: string | undefined): TimeType | undefined {
+  if (scheduled === undefined) return undefined;
+  return delay === undefined ? TimeType.SCHEDULED : TimeType.ESTIMATED;
+}
+
 function toStops(courseElements: GtiCourseElement[]): CourseStop[] {
   const stops: CourseStop[] = [];
   const first = courseElements[0];
@@ -68,6 +74,8 @@ function toStops(courseElements: GtiCourseElement[]): CourseStop[] {
     platform: first.fromPlatform,
     cancelled: first.fromCancelled,
     extra: first.fromExtra,
+    departureTimeType: toTimeType(first.depDelay, first.depTime),
+    arrivalTimeType: toTimeType(first.arrDelay, first.arrTime),
   });
 
   for (const [index, element] of courseElements.entries()) {
@@ -84,6 +92,8 @@ function toStops(courseElements: GtiCourseElement[]): CourseStop[] {
       platform: element.toPlatform ?? next?.fromPlatform,
       cancelled: element.toCancelled,
       extra: element.toExtra,
+      departureTimeType: toTimeType(element.depDelay, element.depTime),
+      arrivalTimeType: toTimeType(element.arrDelay, element.arrTime),
     });
   }
   return stops;

@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import type * as Leaflet from 'leaflet';
 import { Subscription } from 'rxjs';
-import { CourseStop, JourneyCourse, LiveVehicle } from '../../shared/vehicle-types';
+import { CourseStop, JourneyCourse, LiveVehicle, TimeType } from '../../shared/vehicle-types';
 import { LiveVehiclesService } from '../live-vehicles.service';
 import { MarkerEntry, VehicleChange } from '../types';
 import {
@@ -422,6 +422,10 @@ export class VehicleMap implements OnDestroy {
     return new Date(time).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
   }
 
+  protected stopTimeType(stop: CourseStop): TimeType | undefined {
+    return stop.departureTimeType ?? stop.arrivalTimeType;
+  }
+
   protected stopDelay(stop: CourseStop): string | null {
     const seconds = stop.depDelay ?? stop.arrDelay;
     if (!seconds) return null;
@@ -492,6 +496,8 @@ export class VehicleMap implements OnDestroy {
     label.textContent = line ? `${line}${destination ? ` → ${destination}` : ''}` : 'Fahrzeug';
     return label;
   }
+
+  protected readonly TimeType = TimeType;
 }
 
 interface CourseProgress {

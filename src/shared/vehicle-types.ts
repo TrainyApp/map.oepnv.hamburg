@@ -27,6 +27,12 @@ export interface VehicleJourney {
   stationId?: string;
 }
 
+export enum TimeType {
+  REPORTED = 'REPORTED',
+  ESTIMATED = 'ESTIMATED',
+  SCHEDULED = 'SCHEDULED',
+}
+
 export interface CourseStop {
   id: string;
   name: string;
@@ -39,6 +45,8 @@ export interface CourseStop {
   platform?: string;
   cancelled?: boolean;
   extra?: boolean;
+  departureTimeType?: TimeType;
+  arrivalTimeType?: TimeType;
 }
 
 export interface Path {
