@@ -1,3 +1,10 @@
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  lmdb: true
+  msgpackr-extract: true
+minimumReleaseAgeExclude:
+  - '@fontsource-variable/archivo@5.3.0'
 onlyBuiltDependencies:
   - '@parcel/watcher'
   - esbuild
