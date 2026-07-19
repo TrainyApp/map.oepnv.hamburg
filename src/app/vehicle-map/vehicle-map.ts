@@ -1,11 +1,11 @@
 import {
-  Component,
-  ElementRef,
-  OnDestroy,
   afterNextRender,
+  Component,
   computed,
   effect,
+  ElementRef,
   inject,
+  OnDestroy,
   signal,
   viewChild,
 } from '@angular/core';
@@ -15,11 +15,12 @@ import { CourseStop, JourneyCourse, LiveVehicle } from '../../shared/vehicle-typ
 import { LiveVehiclesService } from '../live-vehicles.service';
 import { MarkerEntry, VehicleChange } from '../types';
 import {
-  OCCUPANCY_COLOR,
-  OCCUPANCY_LABEL,
   categoryOf,
   colorForType,
   getPolylineColor,
+  LOCATION_SOURCE_LABEL,
+  OCCUPANCY_COLOR,
+  OCCUPANCY_LABEL,
 } from '../vehicle-palette';
 
 const HAMBURG_CENTER: [number, number] = [53.5503, 9.9937];
@@ -68,6 +69,7 @@ export class VehicleMap implements OnDestroy {
 
   protected readonly OCCUPANCY_COLOR = OCCUPANCY_COLOR;
   protected readonly OCCUPANCY_LABEL = OCCUPANCY_LABEL;
+  protected readonly LOCATION_SOURCE_LABEL = LOCATION_SOURCE_LABEL;
   protected readonly kindLabel = kindLabel;
 
   protected readonly progress = computed(() => {
@@ -549,13 +551,13 @@ function project(
   return { distance: Math.hypot(a.x + t * dx, a.y + t * dy), t };
 }
 
-function kindLabel(kind: LiveVehicle['kind']): string {
+function kindLabel(kind: LiveVehicle['kind']): string | undefined {
   switch (kind) {
-    case 'POSITION':
-      return 'GPS';
     case 'STATION':
       return 'an Haltestelle';
     case 'SECTION':
       return 'zwischen Haltestellen';
+    default:
+      return undefined;
   }
 }

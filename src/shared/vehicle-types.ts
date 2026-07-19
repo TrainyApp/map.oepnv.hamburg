@@ -2,6 +2,8 @@ export type OccupancyLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 
 export type LocationKind = 'POSITION' | 'STATION' | 'SECTION';
 
+export type LocationSource = 'GPS' | 'LST' | 'UNKNOWN';
+
 export interface VehicleOccupancy {
   level: OccupancyLevel;
   count: number;
@@ -61,6 +63,7 @@ export interface LiveVehicle {
   speed?: number;
   occupancy?: VehicleOccupancy;
   journey?: VehicleJourney;
+  locationSource: LocationSource;
 }
 
 export interface RelayStatus {

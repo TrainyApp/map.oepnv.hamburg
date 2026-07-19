@@ -87,9 +87,15 @@
 
     <dl class="vehicle-info">
       <div>
-        <dt>Position</dt>
-        <dd>{{ kindLabel(vehicle.kind) }}</dd>
+        <dt>Quelle</dt>
+        <dd>{{ LOCATION_SOURCE_LABEL[vehicle.locationSource] ?? 'Unbekannt' }}</dd>
       </div>
+      @if (kindLabel(vehicle.kind); as kind) {
+        <div>
+          <dt>Position</dt>
+          <dd>{{ kind }}</dd>
+        </div>
+      }
       <div>
         <dt>Stand</dt>
         <dd>{{ receivedTime(vehicle) }}</dd>

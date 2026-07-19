@@ -1,4 +1,5 @@
 export interface RisJourneyPosition {
+  metaSource?: string;
   meta?: { timeCreated?: string; timeInformation?: string };
   info?: {
     destination?: { name?: string; evaNumber?: string };

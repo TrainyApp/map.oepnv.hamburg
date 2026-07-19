@@ -9,6 +9,7 @@ import {
   EV_UPDATE,
   JourneyCourse,
   LiveVehicle,
+  LocationSource,
   RelayStatus,
   VehicleJourney,
   VehicleOccupancy,
@@ -206,6 +207,7 @@ class MosaicRelay {
       lastReceived: location.lastReceived,
       occupancy: this.occupancies.get(id),
       journey: this.journeys.get(id) ?? this.vehicles.get(id)?.journey,
+      locationSource: 'GPS',
     });
     this.dirty.add(id);
   }
@@ -220,6 +222,18 @@ class MosaicRelay {
       return;
     }
 
+    let locationSource: LocationSource = 'GPS';
+    if (position.metaSource) {
+      switch (position.metaSource) {
+        case 'SIGNALLING':
+          locationSource = 'LST';
+          break;
+        default:
+          locationSource = 'UNKNOWN';
+          console.warn('Unknown metaSource:', position.metaSource);
+      }
+    }
+
     this.vehicles.set(journeyID, {
       id: journeyID,
       kind: 'POSITION',
@@ -228,6 +242,7 @@ class MosaicRelay {
       lastReceived:
         position.meta?.timeInformation ?? position.meta?.timeCreated ?? new Date().toISOString(),
       speed: position.speed,
+      locationSource: locationSource,
       journey: {
         journeyId: journeyID,
         lineId: '',

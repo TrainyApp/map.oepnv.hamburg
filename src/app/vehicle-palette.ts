@@ -1,4 +1,4 @@
-import { JourneyCourse, LiveVehicle, OccupancyLevel } from '../shared/vehicle-types';
+import { JourneyCourse, LiveVehicle, LocationSource, OccupancyLevel } from '../shared/vehicle-types';
 
 const NEUTRAL = '#6b6a66';
 
@@ -99,4 +99,10 @@ export const OCCUPANCY_LABEL: Record<OccupancyLevel, string> = {
   LOW: 'gering',
   MEDIUM: 'mittel',
   HIGH: 'hoch',
+};
+
+export const LOCATION_SOURCE_LABEL: Record<LocationSource, string> = {
+  GPS: 'GPS',
+  LST: 'Leit- und Sicherungstechnik',
+  UNKNOWN: 'Unbekannt',
 };
