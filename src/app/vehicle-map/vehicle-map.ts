@@ -428,10 +428,9 @@ export class VehicleMap implements OnDestroy {
 
   protected stopDelay(stop: CourseStop): string | null {
     const seconds = stop.depDelay ?? stop.arrDelay;
-    if (!seconds) return null;
+    if (seconds === undefined || seconds === null) return null;
     const minutes = Math.round(seconds / 60);
-    if (minutes === 0) return null;
-    return minutes > 0 ? `+${minutes}` : `${minutes}`;
+    return minutes >= 0 ? `+${minutes}` : `${minutes}`;
   }
 
   protected roundedSpeed(vehicle: LiveVehicle): number {

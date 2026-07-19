@@ -158,7 +158,7 @@
             <span class="time {{stopTimeType(stop) == TimeType.REPORTED && 'bold'}}">
               {{ stopTime(stop) }}
               @if (stopDelay(stop); as delay) {
-                <em class="delay">{{ delay }}</em>
+                <em class="{{(stop.depDelay ?? stop.arrDelay ?? 0) <= 0 && 'realtime' || 'delay'}}">{{ delay }}</em>
               }
             </span>
             <span class="name">

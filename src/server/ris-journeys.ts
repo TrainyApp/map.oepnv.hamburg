@@ -118,18 +118,18 @@ async function fetchStopPlacePositions(
 }
 
 function delaySeconds(event: JourneyEvent): number | undefined {
-  if (!event.time || !event.timeSchedule) {
+  if (!event.time || !event.timeSchedule || event.timeType == 'SCHEDULE') {
     return undefined;
   }
 
-  return Math.round((Date.parse(event.time) - Date.parse(event.timeSchedule)) / 1000) || undefined;
+  return Math.round((Date.parse(event.time) - Date.parse(event.timeSchedule)) / 1000);
 }
 
 function toTimeType(type: string) {
   switch (type) {
     case 'REAL':
       return TimeType.REPORTED;
-    case 'SCHEDULED':
+    case 'SCHEDULE':
       return TimeType.SCHEDULED;
     case 'PREVIEW':
       return TimeType.ESTIMATED;
