@@ -111,7 +111,7 @@
             ></span>
             {{ OCCUPANCY_LABEL[occupancy.level] ?? occupancy.level }} ({{
               occupancy.count
-            }}{{ occupancy.predicted ? ', prognostiziert' : '' }})
+            }} Passagiere {{ occupancy.predicted ? ', prognostiziert' : '' }})
           </dd>
         </div>
       }
