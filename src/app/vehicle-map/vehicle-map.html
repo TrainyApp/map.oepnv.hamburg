@@ -102,6 +102,14 @@
       </div>
       @if (vehicle.occupancy; as occupancy) {
         <div>
+          <dt>Passagiere</dt>
+          <dd>
+            {{
+              occupancy.count
+            }}{{ occupancy.predicted ? ' (prognostiziert)' : '' }}
+          </dd>
+        </div>
+        <div>
           <dt>Auslastung</dt>
           <dd>
             <span
@@ -109,9 +117,7 @@
               [style.background]="OCCUPANCY_COLOR[occupancy.level]"
               aria-hidden="true"
             ></span>
-            {{ OCCUPANCY_LABEL[occupancy.level] ?? occupancy.level }} ({{
-              occupancy.count
-            }} Passagiere {{ occupancy.predicted ? ', prognostiziert' : '' }})
+            {{ OCCUPANCY_LABEL[occupancy.level] ?? occupancy.level }}
           </dd>
         </div>
       }
