@@ -207,7 +207,7 @@ class MosaicRelay {
       lastReceived: location.lastReceived,
       occupancy: this.occupancies.get(id),
       journey: this.journeys.get(id) ?? this.vehicles.get(id)?.journey,
-      locationSource: 'GPS',
+      locationSource: location.type == 'POSITION' && 'GPS' || 'LST',
     });
     this.dirty.add(id);
   }
