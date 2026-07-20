@@ -24,6 +24,7 @@ export type StopPlacesByKeysResponse = Record<
   string,
   {
     evaNumber?: string;
+    names?: { [key: string]: { nameLong: string; nameShort: string; nameLocal?: string } };
     position?: { latitude?: number; longitude?: number };
   }[]
 >;

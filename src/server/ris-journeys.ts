@@ -76,6 +76,7 @@ async function fetchPolyline(journeyID: string): Promise<[number, number][]> {
 interface StopPlacePosition {
   lat: number;
   lon: number;
+  localName?: string;
 }
 
 function risStationsUrl(): string {
@@ -111,7 +112,7 @@ async function fetchStopPlacePositions(
     const lat = place?.position?.latitude;
     const lon = place?.position?.longitude;
     if (!eva || lat === undefined || lon === undefined) continue;
-    result.set(eva, { lat, lon });
+    result.set(eva, { lat, lon, localName: place?.names?.['DE']?.nameLocal });
   }
 
   return result;
@@ -207,17 +208,27 @@ export async function fetchRisJourneyCourse(vehicle: LiveVehicle): Promise<Journ
       if (position) {
         stop.lat = position.lat;
         stop.lon = position.lon;
+        if (position.localName) {
+          stop.name = position.localName.replace(/^HH /, '');
+          stop.isLocalName = true;
+        }
       }
     }
   } catch (err) {
     console.warn('ris-journeys: stop-places:', (err as Error).message);
   }
 
+  const lastStop = stops[stops.length - 1];
+  let destination = journey.info.destination?.name ?? vehicle.journey?.destination ?? '';
+  if (lastStop && lastStop.isLocalName) {
+    destination = lastStop.name;
+  }
+
   return {
     lineId: undefined,
     lineName: journey.info.transportAtStart?.line ?? vehicle.journey?.lineName ?? '?',
-    destination: journey.info.destination?.name ?? vehicle.journey?.destination ?? '',
     category: vehicle.journey?.category ?? 'R',
+    destination,
     stops,
     path,
   };

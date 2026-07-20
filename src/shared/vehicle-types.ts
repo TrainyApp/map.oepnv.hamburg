@@ -36,6 +36,7 @@ export enum TimeType {
 export interface CourseStop {
   id: string;
   name: string;
+  isLocalName?: boolean;
   lat?: number;
   lon?: number;
   arrTime?: string;
