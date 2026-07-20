@@ -263,10 +263,132 @@
   min-height: 0;
 }
 
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.3rem 1rem;
+  background: #ffffff;
+  border-top: 1px solid var(--hvv-border);
+  font-size: 0.72rem;
+  color: var(--hvv-gray);
+  z-index: 1000;
+
+  .disclaimer {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .faq-button {
+    flex-shrink: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    font-weight: 700;
+    color: var(--hvv-blue);
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.faq-backdrop {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 2000;
+}
+
+.faq-dialog {
+  box-sizing: border-box;
+  width: min(34rem, 100%);
+  max-height: min(80vh, 100%);
+  overflow-y: auto;
+  padding: 1rem 1.25rem 1.25rem;
+  background: #ffffff;
+  border-radius: var(--hvv-radius);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+
+  .faq-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+
+    h2 {
+      margin: 0;
+      font-size: 1.05rem;
+    }
+
+    .close {
+      display: inline-grid;
+      place-items: center;
+      width: 1.6rem;
+      height: 1.6rem;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--hvv-gray);
+      font: inherit;
+      font-size: 1.2rem;
+      line-height: 1;
+      cursor: pointer;
+
+      &:hover {
+        background: var(--hvv-gray-light);
+        color: var(--hvv-text);
+      }
+    }
+  }
+
+  details {
+    border-top: 1px solid var(--hvv-border);
+
+    &:last-child {
+      border-bottom: 1px solid var(--hvv-border);
+    }
+
+    summary {
+      padding: 0.6rem 0;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+
+      &:hover {
+        color: var(--hvv-blue);
+      }
+    }
+
+    p {
+      margin: 0 0 0.75rem;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: var(--hvv-text-soft);
+    }
+  }
+}
+
 @media (max-width: 760px) {
   .topbar {
     gap: 0.5rem;
     padding: 0.45rem 0.65rem;
+  }
+
+  .footer {
+    padding: 0.3rem 0.65rem;
+    font-size: 0.68rem;
+
+    .disclaimer {
+      white-space: normal;
+    }
   }
 
   .logo {

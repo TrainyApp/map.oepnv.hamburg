@@ -114,3 +114,57 @@
 <main class="map-area">
   <app-vehicle-map />
 </main>
+
+<footer class="footer">
+  <span class="disclaimer">
+    Kein offizielles Angebot von HVV, Hochbahn oder Deutscher Bahn. Alle Angaben ohne Gewähr.
+  </span>
+  <button type="button" class="faq-button" (click)="openFaq()">Info &amp; FAQ</button>
+</footer>
+
+@if (faqOpen()) {
+  <div class="faq-backdrop" (click)="onFaqBackdrop($event)">
+    <section class="faq-dialog" role="dialog" aria-modal="true" aria-labelledby="faq-title">
+      <header class="faq-header">
+        <h2 id="faq-title">Info &amp; FAQ</h2>
+        <button type="button" class="close" aria-label="FAQ schließen" (click)="closeFaq()">
+          ×
+        </button>
+      </header>
+      <details open>
+        <summary>Ist das eine offizielle App?</summary>
+        <p>
+          Nein. Diese Seite ist ein privates Projekt und steht in keiner Verbindung zum HVV,
+          zur Hamburger Hochbahn, zur S-Bahn Hamburg oder zur Deutschen Bahn. Alle Angaben ohne
+          Gewähr.
+        </p>
+      </details>
+      <details>
+        <summary>Woher kommen die Daten?</summary>
+        <p>
+          Die Fahrzeugpositionen und Auslastungsdaten stammen aus der Datenplattform Mosaic der
+          Hochbahn. Positionen von S-Bahnen und Regionalzügen liefert zusätzlich das
+          Reisendeninformationssystem (RIS) der Deutschen Bahn. Fahrtverläufe und Liniendaten
+          kommen aus der Schnittstelle Geofox des HVV sowie aus RIS.
+        </p>
+      </details>
+      <details>
+        <summary>Was bedeutet „Leit- und Sicherungstechnik“?</summary>
+        <p>
+          Nicht alle Fahrzeuge senden eine Position per GPS. Bei vielen Zügen wird die Position
+          aus der Leit- und Sicherungstechnik abgeleitet, also daraus, welchen Gleisabschnitt
+          ein Zug laut Signaltechnik gerade belegt. Solche Züge springen deshalb zwischen
+          festen Punkten auf der Strecke, statt sich kontinuierlich zu bewegen.
+        </p>
+      </details>
+      <details>
+        <summary>Wie aktuell sind die Daten?</summary>
+        <p>
+          Die Positionen kommen live an und sind in der Regel nur wenige Sekunden alt.
+          Fahrzeuge, die keine neuen Meldungen senden, verschwinden nach ein paar Minuten von
+          der Karte.
+        </p>
+      </details>
+    </section>
+  </div>
+}

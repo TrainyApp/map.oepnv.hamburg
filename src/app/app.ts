@@ -8,10 +8,14 @@ import { categoryRank, colorForType, labelForCategory } from './vehicle-palette'
   imports: [VehicleMap],
   templateUrl: './app.html',
   styleUrl: './app.scss',
+  host: {
+    '(document:keydown.escape)': 'closeFaq()',
+  },
 })
 export class App {
   protected readonly live = inject(LiveVehiclesService);
   protected readonly filtersOpen = signal(false);
+  protected readonly faqOpen = signal(false);
 
   protected readonly activeFilterCount = computed(
     () => this.live.hiddenTypes().size + (this.live.selectedLine() ? 1 : 0),
@@ -55,6 +59,20 @@ export class App {
 
   protected toggleFilters(): void {
     this.filtersOpen.update((open) => !open);
+  }
+
+  protected openFaq(): void {
+    this.faqOpen.set(true);
+  }
+
+  protected closeFaq(): void {
+    this.faqOpen.set(false);
+  }
+
+  protected onFaqBackdrop(event: MouseEvent): void {
+    if (event.target === event.currentTarget) {
+      this.closeFaq();
+    }
   }
 
   protected onLineQuery(event: Event): void {
