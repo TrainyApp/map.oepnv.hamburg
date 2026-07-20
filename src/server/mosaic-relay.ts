@@ -327,9 +327,11 @@ class MosaicRelay {
   }
 
   private onOccupancy(raw: MosaicOccupancy): void {
+    const count = Math.max(0, raw.occupancy);
+
     const occupancy: VehicleOccupancy = {
+      count,
       level: raw.occupancyLevel,
-      count: raw.occupancy,
       vehicleType: raw.vehicleType,
       vehicleModel: raw.vehicleModel,
       predicted: raw.predicted,
