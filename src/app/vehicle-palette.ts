@@ -93,12 +93,14 @@ export const OCCUPANCY_COLOR: Record<OccupancyLevel, string> = {
   LOW: '#0ca30c',
   MEDIUM: '#fab219',
   HIGH: '#ec835a',
+  UNKNOWN: '#6b6a66',
 };
 
 export const OCCUPANCY_LABEL: Record<OccupancyLevel, string> = {
   LOW: 'gering',
   MEDIUM: 'mittel',
   HIGH: 'hoch',
+  UNKNOWN: 'unbekannt',
 };
 
 export const LOCATION_SOURCE_LABEL: Record<LocationSource, string> = {

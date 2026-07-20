@@ -1,4 +1,4 @@
-export type OccupancyLevel = 'LOW' | 'MEDIUM' | 'HIGH';
+export type OccupancyLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'UNKNOWN';
 
 export type LocationKind = 'POSITION' | 'STATION' | 'SECTION';
 
