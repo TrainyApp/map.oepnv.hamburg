@@ -208,7 +208,7 @@ export async function fetchRisJourneyCourse(vehicle: LiveVehicle): Promise<Journ
       if (position) {
         stop.lat = position.lat;
         stop.lon = position.lon;
-        if (position.localName) {
+        if (position.localName && vehicle.journey?.category === 'S') {
           stop.name = position.localName.replace(/^HH /, '');
           stop.isLocalName = true;
         }
