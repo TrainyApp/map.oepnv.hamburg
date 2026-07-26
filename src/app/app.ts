@@ -9,13 +9,14 @@ import { categoryRank, colorForType, labelForCategory } from './vehicle-palette'
   templateUrl: './app.html',
   styleUrl: './app.scss',
   host: {
-    '(document:keydown.escape)': 'closeFaq()',
+    '(document:keydown.escape)': 'closeDialogs()',
   },
 })
 export class App {
   protected readonly live = inject(LiveVehiclesService);
   protected readonly filtersOpen = signal(false);
   protected readonly faqOpen = signal(false);
+  protected readonly privacyOpen = signal(false);
 
   protected readonly activeFilterCount = computed(
     () => this.live.hiddenTypes().size + (this.live.selectedLine() ? 1 : 0),
@@ -73,6 +74,25 @@ export class App {
     if (event.target === event.currentTarget) {
       this.closeFaq();
     }
+  }
+
+  protected openPrivacy(): void {
+    this.privacyOpen.set(true);
+  }
+
+  protected closePrivacy(): void {
+    this.privacyOpen.set(false);
+  }
+
+  protected onPrivacyBackdrop(event: MouseEvent): void {
+    if (event.target === event.currentTarget) {
+      this.closePrivacy();
+    }
+  }
+
+  protected closeDialogs(): void {
+    this.closeFaq();
+    this.closePrivacy();
   }
 
   protected onLineQuery(event: Event): void {

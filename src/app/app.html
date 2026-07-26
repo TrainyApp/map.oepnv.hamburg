@@ -120,6 +120,7 @@
     Kein offizielles Angebot von HVV, Hochbahn oder Deutscher Bahn. Alle Angaben ohne Gewähr.
   </span>
   <button type="button" class="faq-button" (click)="openFaq()">Info &amp; FAQ</button>
+  <button type="button" class="faq-button" (click)="openPrivacy()">Datenschutz</button>
 </footer>
 
 @if (faqOpen()) {
@@ -165,6 +166,106 @@
           der Karte.
         </p>
       </details>
+    </section>
+  </div>
+}
+
+@if (privacyOpen()) {
+  <div class="faq-backdrop" (click)="onPrivacyBackdrop($event)">
+    <section
+      class="faq-dialog legal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="privacy-title"
+    >
+      <header class="faq-header">
+        <h2 id="privacy-title">Datenschutzerklärung</h2>
+        <button
+          type="button"
+          class="close"
+          aria-label="Datenschutzerklärung schließen"
+          (click)="closePrivacy()"
+        >
+          ×
+        </button>
+      </header>
+
+      <h3>1. Grundsätzliches</h3>
+      <p>
+        Diese Website ist ein privates, nicht-kommerzielles Projekt. Sie verwendet keine Cookies,
+        keine Analyse- oder Tracking-Dienste und keine Werbung. Personenbezogene Daten werden nur
+        verarbeitet, soweit dies für den technischen Betrieb erforderlich ist. Die angezeigten
+        Fahrzeugdaten sind keine personenbezogenen Daten der Besucherinnen und Besucher; sie
+        werden serverseitig von den Datenquellen (Hochbahn, Deutsche Bahn, HVV) abgerufen, ohne
+        dass dabei Daten der Besucher an diese übertragen werden.
+      </p>
+
+      <h3>2. Hosting und Server-Logfiles</h3>
+      <p>
+        Beim Aufruf der Website verarbeitet unser Server automatisch Daten, die Ihr Browser
+        übermittelt: IP-Adresse, Datum und Uhrzeit des Zugriffs, aufgerufene Ressource, Browsertyp
+        und -version, Betriebssystem sowie Referrer-URL. Die Verarbeitung ist für die Auslieferung
+        der Website und zur Gewährleistung von Stabilität und Sicherheit technisch erforderlich
+        (Art. 6 Abs. 1 lit. f DSGVO); die Daten werden nach kurzer Zeit gelöscht. Die Website wird
+        ausgeliefert über die Infrastruktur des Anbieters Fastly, Inc., 475 Brannan Street, San
+        Francisco, CA 94107, USA. Fastly verarbeitet die genannten Verbindungsdaten in unserem
+        Auftrag (Art. 28 DSGVO), in der Regel auf Servern in der EU. Soweit Daten in die USA
+        übermittelt werden, ist Fastly nach dem EU-U.S. Data Privacy Framework zertifiziert;
+        insoweit besteht ein Angemessenheitsbeschluss der EU-Kommission (Art. 45 DSGVO). Weitere
+        Informationen:
+        <a href="https://www.fastly.com/privacy" target="_blank" rel="noopener noreferrer"
+          >Datenschutzerklärung von Fastly</a
+        >.
+      </p>
+
+      <h3>3. Live-Daten (WebSocket-Verbindung)</h3>
+      <p>
+        Zur Anzeige der Fahrzeugpositionen hält Ihr Browser eine dauerhafte Verbindung (WebSocket)
+        zu unserem Server. Auch diese Verbindung läuft wie alle Zugriffe auf diese Website über
+        die Infrastruktur von Fastly (siehe Ziffer 2). Dabei werden ausschließlich die unter
+        Ziffer 2 genannten Verbindungsdaten verarbeitet; eine darüber hinausgehende Speicherung
+        findet nicht statt.
+      </p>
+
+      <h3>4. Kartendarstellung (OpenStreetMap)</h3>
+      <p>
+        Für die Kartendarstellung lädt Ihr Browser Kartenkacheln direkt von Servern der
+        OpenStreetMap Foundation, St John's Innovation Centre, Cowley Road, Cambridge, CB4 0WS,
+        Vereinigtes Königreich. Dabei werden Ihre IP-Adresse und der betrachtete Kartenausschnitt
+        an die OpenStreetMap Foundation übermittelt. Für das Vereinigte Königreich besteht ein
+        Angemessenheitsbeschluss der EU-Kommission (Art. 45 DSGVO). Rechtsgrundlage ist unser
+        berechtigtes Interesse an der Darstellung einer interaktiven Karte (Art. 6 Abs. 1 lit. f
+        DSGVO). Weitere Informationen:
+        <a
+          href="https://osmfoundation.org/wiki/Privacy_Policy"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Datenschutzhinweise der OpenStreetMap Foundation</a
+        >.
+      </p>
+
+      <h3>5. Linien-Symbole (HVV Geofox)</h3>
+      <p>
+        Die Symbole der Linien in der Liniensuche und in den Fahrtdetails lädt Ihr Browser von
+        Servern des Dienstes Geofox (cloud.geofox.de), der für den Hamburger Verkehrsverbund (HVV)
+        in Deutschland betrieben wird. Dabei wird Ihre IP-Adresse an diese Server übermittelt.
+        Rechtsgrundlage ist unser berechtigtes Interesse an der Darstellung der Liniensymbole
+        (Art. 6 Abs. 1 lit. f DSGVO).
+      </p>
+
+      <h3>6. Ihre Rechte</h3>
+      <p>
+        Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16 DSGVO), Löschung
+        (Art. 17 DSGVO), Einschränkung der Verarbeitung (Art. 18 DSGVO), Datenübertragbarkeit
+        (Art. 20 DSGVO) sowie Widerspruch gegen Verarbeitungen auf Grundlage von Art. 6 Abs. 1
+        lit. f DSGVO (Art. 21 DSGVO).
+        Zudem haben Sie das Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu beschweren
+        (Art. 77 DSGVO), etwa beim Hamburgischen Beauftragten für Datenschutz und
+        Informationsfreiheit, Ludwig-Erhard-Straße 22, 20459 Hamburg. Eine automatisierte
+        Entscheidungsfindung oder ein Profiling findet nicht statt.
+      </p>
+
+      <p class="legal-stand">Stand: Juli 2026</p>
     </section>
   </div>
 }

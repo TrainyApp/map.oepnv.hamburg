@@ -374,6 +374,30 @@
       color: var(--hvv-text-soft);
     }
   }
+
+  &.legal {
+    h3 {
+      margin: 1rem 0 0.35rem;
+      font-size: 0.9rem;
+    }
+
+    p {
+      margin: 0 0 0.6rem;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: var(--hvv-text-soft);
+    }
+
+    a {
+      color: var(--hvv-blue);
+    }
+
+    .legal-stand {
+      margin-top: 1rem;
+      font-size: 0.78rem;
+      color: var(--hvv-gray);
+    }
+  }
 }
 
 @media (max-width: 760px) {
