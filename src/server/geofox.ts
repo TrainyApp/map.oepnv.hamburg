@@ -1,11 +1,5 @@
 import { createHmac } from 'node:crypto';
-import {
-  CourseStop,
-  JourneyCourse,
-  LiveVehicle,
-  TimeType,
-  VehicleJourney,
-} from '../shared/vehicle-types';
+import { CourseStop, JourneyCourse, LiveVehicle, TimeType, VehicleJourney } from '../shared/vehicle-types';
 import {
   GtiCourseElement,
   GtiDeparture,
@@ -13,7 +7,7 @@ import {
   GtiSDName,
   GtiService,
   GtiSimpleServiceType,
-  GTITime,
+  GTITime
 } from './types/geofox/gti';
 import { LineListEntry, LLResponse } from './types/geofox/LLResponse';
 import { StationDeparture } from './types/mosaic';
@@ -106,7 +100,7 @@ async function gti<T extends GtiResponse>(method: string, body: object): Promise
 }
 
 function toGtiTime(instant: Instant): string {
-  return instant.toString().replace('Z', '+0000');
+  return instant.toString({ fractionalSecondDigits: 3 }).replace('Z', '+0000');
 }
 
 function toGTITime(instant: Instant): GTITime {
@@ -237,9 +231,12 @@ export async function fetchVehicleJourneys(
 
       const previous = bestTime.get(vehicleId);
 
-      if (previous && Temporal.Instant.compare(when, previous) === 1 && Temporal.Instant.compare(when, now) === 1) {
+      if (
+        previous &&
+        Temporal.Instant.compare(when, previous) === 1 &&
+        Temporal.Instant.compare(when, now) === 1
+      ) {
         const diffInMins = when.since(now);
-
 
         if (Temporal.Duration.compare(diffInMins, Duration.from({ minutes: 15 })) == 1) {
           continue;
@@ -272,7 +269,7 @@ export async function fetchJourneyCourse(
 
   const lineId = departure?.departure?.line?.id ?? journey?.lineId;
   const stationId = departure?.stationId ?? journey?.stationId;
-  const destination = departure?.departure?.direction ?? journey?.destination;
+  const destination = departure?.departure?.line?.direction ?? journey?.destination;
   const plannedDeparture = departure?.getPlannedDeparture() ?? journey?.plannedDeparture;
 
   if (!lineId || !stationId || !destination || !plannedDeparture) {
@@ -282,10 +279,10 @@ export async function fetchJourneyCourse(
   const response = await gti<GtiResponse & { courseElements?: GtiCourseElement[] }>(
     'departureCourse',
     {
-      lineId,
+      lineKey: lineId,
       station: { id: toGtiStationId(stationId), type: 'STATION' },
       time: toGtiTime(plannedDeparture),
-      direction: destination,
+      serviceId: departure?.departure.serviceId ?? Number.parseInt(vehicle.journey?.journeyId!),
       segments: 'ALL',
       showPath: true,
       coordinateType: 'EPSG_4326',
@@ -330,9 +327,7 @@ export async function fetchJourneyCourse(
 }
 
 function departureTime(departure: GtiDeparture, startTime: Instant): Instant {
-  return startTime
-    .add({ minutes: departure.timeOffset })
-    .add({ seconds: departure.delay ?? 0 });
+  return startTime.add({ minutes: departure.timeOffset }).add({ seconds: departure.delay ?? 0 });
 }
 
 function categorize(line: GtiService): string {
