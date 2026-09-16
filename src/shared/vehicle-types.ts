@@ -1,3 +1,6 @@
+import { Temporal } from '@js-temporal/polyfill';
+import Instant = Temporal.Instant;
+
 export type OccupancyLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'UNKNOWN';
 
 export type LocationKind = 'POSITION' | 'STATION' | 'SECTION';
@@ -23,7 +26,7 @@ export interface VehicleJourney {
   transitMode: string;
   category: VehicleCategory;
   destination: string;
-  plannedDeparture?: string;
+  plannedDeparture?: Instant;
   stationId?: string;
 }
 

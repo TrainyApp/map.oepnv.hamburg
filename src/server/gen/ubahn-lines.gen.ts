@@ -1,8 +1,7 @@
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { LiveVehicle } from '../../shared/vehicle-types';
-import { fetchVehicleJourneys } from '../mosaic';
-import { fetchJourneyCourse } from '../geofox';
+import { fetchJourneyCourse, fetchVehicleJourneys } from '../geofox';
 import { StationDeparture } from '../types/mosaic';
 import { StoredLine } from '../types/ubahn';
 
@@ -14,15 +13,12 @@ const UBAHN_TRANSIT_MODE = 'U';
 const OUTPUT = join(process.cwd(), 'src/server/gen/ubahn-lines.json');
 
 async function main(): Promise<void> {
-  const apiKey = process.env['MOSAIC_API_KEY'];
-  if (!apiKey) throw new Error('MOSAIC_API_KEY nicht gesetzt (.env)');
-
-  const { departures } = await fetchVehicleJourneys(apiKey);
-  const ubahn = departures.filter((d) => d.departure.line?.transitMode === UBAHN_TRANSIT_MODE);
+  const { departures } = await fetchVehicleJourneys();
+  const ubahn = departures.filter((d) => d.departure.line?.type?.shortInfo === UBAHN_TRANSIT_MODE);
 
   const variants = new Map<string, StationDeparture>();
   for (const d of ubahn) {
-    const key = `${d.departure.line?.name ?? '?'}|${d.departure.direction?.passengerDestination ?? '?'}`;
+    const key = `${d.departure.line?.name ?? '?'}|${d.departure.line?.direction ?? '?'}`;
     if (!variants.has(key)) variants.set(key, d);
   }
   console.log(`ubahn-gen: ${ubahn.length} U-Bahn-Abfahrten, ${variants.size} Varianten`);
@@ -37,7 +33,7 @@ async function main(): Promise<void> {
       }
       out.push({
         line: dep.departure.line?.name ?? course.lineName,
-        destination: dep.departure.direction?.passengerDestination ?? course.destination,
+        destination: dep.departure.line?.direction ?? course.destination,
         polyline: course.path,
       });
       console.log(`ubahn-gen: "${variant}" -> ${course.path.length} Punkte`);

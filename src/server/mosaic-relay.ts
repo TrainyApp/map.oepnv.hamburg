@@ -1,7 +1,7 @@
 import type { Server as HttpServer } from 'node:http';
+import { createServer, ServerResponse } from 'node:http';
 import mqtt from 'mqtt';
 import { Server as SocketIOServer } from 'socket.io';
-import { createServer, ServerResponse } from 'node:http';
 import {
   EV_REMOVE,
   EV_SNAPSHOT,
@@ -14,8 +14,7 @@ import {
   VehicleJourney,
   VehicleOccupancy,
 } from '../shared/vehicle-types';
-import { fetchJourneyCourse, fetchLines } from './geofox';
-import { fetchVehicleJourneys, normalizeLineName } from './mosaic';
+import { fetchJourneyCourse, fetchLines, fetchVehicleJourneys, normalizeLineName } from './geofox';
 import { fetchRisJourneyCourse } from './ris-journeys';
 import { LineListEntry } from './types/geofox/LLResponse';
 import { GeoCoordinate, MosaicOccupancy, MosaicVehicleLocation } from './types/mosaic';
@@ -62,7 +61,6 @@ const COURSE_CACHE_MS = 60_000;
 const LINES_RETRY_MS = 60_000;
 
 class MosaicRelay {
-  private readonly apiKey = process.env['MOSAIC_API_KEY']!;
   private readonly io: SocketIOServer;
 
   private readonly vehicles = new Map<string, LiveVehicle>();
@@ -207,7 +205,7 @@ class MosaicRelay {
       lastReceived: location.lastReceived,
       occupancy: this.occupancies.get(id),
       journey: this.journeys.get(id) ?? this.vehicles.get(id)?.journey,
-      locationSource: location.type == 'POSITION' && 'GPS' || 'LST',
+      locationSource: (location.type == 'POSITION' && 'GPS') || 'LST',
     });
     this.dirty.add(id);
   }
@@ -285,7 +283,7 @@ class MosaicRelay {
   private startJourneyPolling(): void {
     const refresh = async () => {
       try {
-        const result = await fetchVehicleJourneys(this.apiKey, this.hvvLines);
+        const result = await fetchVehicleJourneys(this.hvvLines);
         this.journeys = result.parsedJourneys;
         console.log(`mosaic: resolved journeys for ${this.journeys.size} vehicles`);
         for (const [id, vehicle] of this.vehicles) {
@@ -296,7 +294,7 @@ class MosaicRelay {
           }
         }
       } catch (err) {
-        console.warn('mosaic: journey refresh failed:', (err as Error).message);
+        console.warn('mosaic: journey refresh failed:', err);
       }
     };
 

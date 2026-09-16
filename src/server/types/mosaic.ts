@@ -1,4 +1,7 @@
 import { OccupancyLevel } from '../../shared/vehicle-types';
+import { GtiDeparture } from './geofox/gti';
+import { Temporal } from '@js-temporal/polyfill';
+import Instant = Temporal.Instant;
 
 export interface GeoCoordinate {
   latitude: number;
@@ -29,9 +32,19 @@ export interface MosaicDeparturesResponse {
   }[];
 }
 
-export interface StationDeparture {
-  departure: MosaicDeparture;
-  stationId: string;
+export abstract class StationDeparture {
+  abstract requestTime: Instant;
+  abstract departure: GtiDeparture;
+  abstract stationId: string;
+
+  getPlannedDeparture(): Instant {
+    return this.requestTime.add({ minutes: this.departure.timeOffset });
+  }
+
+  getRealTime(): Instant | undefined {
+    if (this.departure.delay == undefined) return undefined;
+    return this.getPlannedDeparture().add({ seconds: this.departure.delay });
+  }
 }
 
 export interface MosaicVehicleLocation {
