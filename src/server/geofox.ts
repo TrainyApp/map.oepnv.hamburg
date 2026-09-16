@@ -333,6 +333,7 @@ function departureTime(departure: GtiDeparture, startTime: Instant): Instant {
 function categorize(line: GtiService): string {
   const mode = line.type.simpleType ?? '';
   if (mode === GtiSimpleServiceType.BUS && /^X\d/i.test(line?.name ?? '')) return 'XPRESSBUS';
+  if (mode === GtiSimpleServiceType.TRAIN) return line.type.shortInfo;
   return mode;
 }
 
