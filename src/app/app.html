@@ -120,6 +120,7 @@
     Kein offizielles Angebot von HVV, Hochbahn oder Deutscher Bahn. Alle Angaben ohne Gewähr.
   </span>
   <button type="button" class="faq-button" (click)="openFaq()">Info &amp; FAQ</button>
+  <button type="button" class="faq-button" (click)="openImprint()">Impressum</button>
   <button type="button" class="faq-button" (click)="openPrivacy()">Datenschutz</button>
 </footer>
 
@@ -170,6 +171,51 @@
   </div>
 }
 
+@if (imprintOpen()) {
+  <div class="faq-backdrop" (click)="onImprintBackdrop($event)">
+    <section
+      class="faq-dialog legal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="imprint-title"
+    >
+      <header class="faq-header">
+        <h2 id="imprint-title">Impressum</h2>
+        <button
+          type="button"
+          class="close"
+          aria-label="Impressum schließen"
+          (click)="closeImprint()"
+        >
+          ×
+        </button>
+      </header>
+
+      <h3>Angaben gemäß § 5 DDG</h3>
+      <p>
+        Michael Rittmeister<br />
+        Mühlstraße, 32<br />
+        82131 Gauting
+      </p>
+
+      <h3>Kontakt</h3>
+      <p>
+        E-Mail: <a href="mailto:michael@rittmeister.in">michael@rittmeister.in</a>
+      </p>
+
+      <h3>Verantwortlich für den Inhalt gemäß § 18 Abs. 2 MStV</h3>
+      <p>Michael Rittmeister, Anschrift wie oben</p>
+
+      <h3>Hinweis</h3>
+      <p>
+        Diese Website ist ein privates, nicht-kommerzielles Projekt und steht in keiner
+        Verbindung zum HVV, zur Hamburger Hochbahn, zur S-Bahn Hamburg oder zur Deutschen Bahn.
+        Alle Angaben ohne Gewähr.
+      </p>
+    </section>
+  </div>
+}
+
 @if (privacyOpen()) {
   <div class="faq-backdrop" (click)="onPrivacyBackdrop($event)">
     <section
@@ -190,7 +236,16 @@
         </button>
       </header>
 
-      <h3>1. Grundsätzliches</h3>
+      <h3>1. Verantwortlicher</h3>
+      <p>
+        Verantwortlicher im Sinne der Datenschutz-Grundverordnung (DSGVO) ist:<br />
+        Michael Rittmeister<br />
+        Mühlstraße, 32<br />
+        82131 Gauting<br />
+        E-Mail: <a href="mailto:michael@rittmeister.in">michael@rittmeister.in</a>
+      </p>
+
+      <h3>2. Grundsätzliches</h3>
       <p>
         Diese Website ist ein privates, nicht-kommerzielles Projekt. Sie verwendet keine Cookies,
         keine Analyse- oder Tracking-Dienste und keine Werbung. Personenbezogene Daten werden nur
@@ -200,7 +255,7 @@
         dass dabei Daten der Besucher an diese übertragen werden.
       </p>
 
-      <h3>2. Hosting und Server-Logfiles</h3>
+      <h3>3. Hosting und Server-Logfiles</h3>
       <p>
         Beim Aufruf der Website verarbeitet unser Server automatisch Daten, die Ihr Browser
         übermittelt: IP-Adresse, Datum und Uhrzeit des Zugriffs, aufgerufene Ressource, Browsertyp
@@ -218,16 +273,16 @@
         >.
       </p>
 
-      <h3>3. Live-Daten (WebSocket-Verbindung)</h3>
+      <h3>4. Live-Daten (WebSocket-Verbindung)</h3>
       <p>
         Zur Anzeige der Fahrzeugpositionen hält Ihr Browser eine dauerhafte Verbindung (WebSocket)
         zu unserem Server. Auch diese Verbindung läuft wie alle Zugriffe auf diese Website über
-        die Infrastruktur von Fastly (siehe Ziffer 2). Dabei werden ausschließlich die unter
-        Ziffer 2 genannten Verbindungsdaten verarbeitet; eine darüber hinausgehende Speicherung
+        die Infrastruktur von Fastly (siehe Ziffer 3). Dabei werden ausschließlich die unter
+        Ziffer 3 genannten Verbindungsdaten verarbeitet; eine darüber hinausgehende Speicherung
         findet nicht statt.
       </p>
 
-      <h3>4. Kartendarstellung (OpenStreetMap)</h3>
+      <h3>5. Kartendarstellung (OpenStreetMap)</h3>
       <p>
         Für die Kartendarstellung lädt Ihr Browser Kartenkacheln direkt von Servern der
         OpenStreetMap Foundation, St John's Innovation Centre, Cowley Road, Cambridge, CB4 0WS,
@@ -244,7 +299,7 @@
         >.
       </p>
 
-      <h3>5. Linien-Symbole (HVV Geofox)</h3>
+      <h3>6. Linien-Symbole (HVV Geofox)</h3>
       <p>
         Die Symbole der Linien in der Liniensuche und in den Fahrtdetails lädt Ihr Browser von
         Servern des Dienstes Geofox (cloud.geofox.de), der für den Hamburger Verkehrsverbund (HVV)
@@ -253,19 +308,20 @@
         (Art. 6 Abs. 1 lit. f DSGVO).
       </p>
 
-      <h3>6. Ihre Rechte</h3>
+      <h3>7. Ihre Rechte</h3>
       <p>
         Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16 DSGVO), Löschung
         (Art. 17 DSGVO), Einschränkung der Verarbeitung (Art. 18 DSGVO), Datenübertragbarkeit
         (Art. 20 DSGVO) sowie Widerspruch gegen Verarbeitungen auf Grundlage von Art. 6 Abs. 1
-        lit. f DSGVO (Art. 21 DSGVO).
+        lit. f DSGVO (Art. 21 DSGVO). Zur Ausübung Ihrer Rechte genügt eine Nachricht an die
+        unter Ziffer 1 genannten Kontaktdaten.
         Zudem haben Sie das Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu beschweren
         (Art. 77 DSGVO), etwa beim Hamburgischen Beauftragten für Datenschutz und
         Informationsfreiheit, Ludwig-Erhard-Straße 22, 20459 Hamburg. Eine automatisierte
         Entscheidungsfindung oder ein Profiling findet nicht statt.
       </p>
 
-      <p class="legal-stand">Stand: Juli 2026</p>
+      <p class="legal-stand">Stand: September 2026</p>
     </section>
   </div>
 }

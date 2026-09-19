@@ -17,6 +17,7 @@ export class App {
   protected readonly filtersOpen = signal(false);
   protected readonly faqOpen = signal(false);
   protected readonly privacyOpen = signal(false);
+  protected readonly imprintOpen = signal(false);
 
   protected readonly activeFilterCount = computed(
     () => this.live.hiddenTypes().size + (this.live.selectedLine() ? 1 : 0),
@@ -90,9 +91,24 @@ export class App {
     }
   }
 
+  protected openImprint(): void {
+    this.imprintOpen.set(true);
+  }
+
+  protected closeImprint(): void {
+    this.imprintOpen.set(false);
+  }
+
+  protected onImprintBackdrop(event: MouseEvent): void {
+    if (event.target === event.currentTarget) {
+      this.closeImprint();
+    }
+  }
+
   protected closeDialogs(): void {
     this.closeFaq();
     this.closePrivacy();
+    this.closeImprint();
   }
 
   protected onLineQuery(event: Event): void {
